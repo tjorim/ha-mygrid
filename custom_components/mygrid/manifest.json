@@ -1,0 +1,19 @@
+{
+  "codeowners": [
+    "@tjorim"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/tjorim/ha-mygrid/blob/main/README.md",
+  "domain": "mygrid",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/tjorim/ha-mygrid/issues",
+  "loggers": [
+    "pymodbus"
+  ],
+  "name": "MyGrid",
+  "requirements": [
+    "pymodbus==3.13.1"
+  ],
+  "version": "0.1.0"
+}

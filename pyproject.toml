@@ -1,0 +1,43 @@
+[project]
+name = "ha-mygrid"
+version = "0.1.0"
+description = "Local MyGrid ModuleTwo Modbus TCP integration for Home Assistant"
+requires-python = ">=3.14.2"
+license = "MIT"
+dependencies = ["pymodbus==3.13.1"]
+
+[dependency-groups]
+dev = [
+  "pytest-homeassistant-custom-component==0.13.373",
+  "ruff==0.17.2",
+  "mypy==2.4.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "--strict-markers --cov=custom_components.mygrid --cov-report=term-missing --cov-report=xml --cov-fail-under=95"
+filterwarnings = ["error"]
+markers = ["simulator: exercises the real TCP protocol against a local simulator"]
+
+[tool.coverage.run]
+branch = true
+source = ["custom_components.mygrid"]
+
+[tool.ruff]
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+follow_imports = "silent"
+files = ["custom_components/mygrid"]
