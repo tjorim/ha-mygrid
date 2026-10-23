@@ -7,11 +7,23 @@ permissions:
 jobs:
   tests:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ha-mygrid
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: ha-mygrid
+      # Development override until mygrid-modbus 0.1.0 is published on PyPI.
+      - uses: actions/checkout@v4
+        with:
+          repository: tjorim/mygrid-modbus
+          ref: f9e0410d0edd7df3a185c35084f93249f60d8b7a
+          path: mygrid-modbus
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
+          python-version: '3.14'
       - run: uv sync --frozen
       - run: uv run ruff check .
       - run: uv run ruff format --check .

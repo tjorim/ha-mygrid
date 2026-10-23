@@ -7,8 +7,8 @@ from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from mygrid_modbus import FAULTS
 
-from .client import FAULTS
 from .coordinator import MyGridConfigEntry, MyGridCoordinator
 from .entity import MyGridEntity
 

@@ -8,8 +8,8 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from mygrid_modbus import BatteryData, InvalidSetpointError, MyGridClient, MyGridError
 
-from .client import BatteryData, InvalidSetpointError, MyGridClient, MyGridError
 from .const import CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL, DOMAIN
 
 LOGGER = logging.getLogger(__name__)

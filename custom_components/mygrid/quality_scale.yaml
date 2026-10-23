@@ -11,7 +11,7 @@ rules:
     comment: Add approved manufacturer artwork and submit to HA brands when publishing; no artwork rights were supplied.
   common-modules:
     status: done
-    comment: client, const, coordinator and entity modules separate protocol and shared lifecycle.
+    comment: Independent mygrid-modbus package owns the protocol; const, coordinator and entity modules own HA lifecycle.
   config-flow:
     status: done
     comment: UI host/port setup with an actual map probe. tests/test_config_flow.py.
@@ -20,7 +20,7 @@ rules:
     comment: tests/test_config_flow.py covers success, duplicate, failure, options and reconfiguration paths.
   dependency-transparency:
     status: done
-    comment: README and manifest disclose local Modbus transport and pinned pymodbus dependency.
+    comment: README and manifest disclose mygrid-modbus==0.1.0, its transitive pymodbus dependency and publication prerequisite.
   docs-actions:
     status: done
     comment: README explains number.set_value and button.press, confirmation and uncertainty.
@@ -155,7 +155,7 @@ rules:
     comment: No dynamic subdevices; entry removal removes the single configured device through HA.
   async-dependency:
     status: done
-    comment: pymodbus AsyncModbusTcpClient provides async-only device IO, with bounded operations.
+    comment: Independent typed mygrid-modbus library provides async-only device IO with bounded operations; its wheel has no HA dependency.
   inject-websession:
     status: exempt
     comment: Modbus TCP has no HTTP websession.

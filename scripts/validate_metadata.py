@@ -3,9 +3,11 @@
 import ast
 import json
 import tomllib
+from importlib.metadata import version
 from pathlib import Path
 
 import yaml
+from mygrid_modbus import FAULTS
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPONENT = ROOT / "custom_components" / "mygrid"
@@ -23,18 +25,29 @@ def main() -> None:
     assert manifest["version"] == project["project"]["version"]
     assert manifest["config_flow"] is True
     assert manifest["iot_class"] == "local_polling"
-    assert manifest["requirements"] == ["pymodbus==3.13.1"]
+    assert manifest["requirements"] == ["mygrid-modbus==0.1.0"]
+    assert project["project"]["dependencies"] == manifest["requirements"]
+    assert version("mygrid-modbus") == "0.1.0"
+    assert not (COMPONENT / "client.py").exists(), "Protocol belongs in the library"
+    for path in COMPONENT.glob("*.py"):
+        tree = ast.parse(path.read_text())
+        assert not any(
+            isinstance(node, (ast.Import, ast.ImportFrom))
+            and any(
+                name == "pymodbus" or name.startswith("pymodbus.")
+                for name in (
+                    [node.module or ""]
+                    if isinstance(node, ast.ImportFrom)
+                    else [item.name for item in node.names]
+                )
+            )
+            for node in ast.walk(tree)
+        ), f"Direct transport import in {path.name}"
     assert "quality_scale" not in manifest, "Custom integration has no official rating"
     assert hacs["homeassistant"] == "2026.10.2"
     strings = json.loads((COMPONENT / "strings.json").read_text())
     assert json.loads((COMPONENT / "translations" / "en.json").read_text()) == strings
-    parsed = ast.parse((COMPONENT / "client.py").read_text())
-    faults = next(
-        ast.literal_eval(node.value)
-        for node in parsed.body
-        if isinstance(node, ast.AnnAssign)
-        and getattr(node.target, "id", None) == "FAULTS"
-    )
+    faults = FAULTS
     assert len(faults) == 22
     assert all(
         f"fault_{name}" in strings["entity"]["binary_sensor"]

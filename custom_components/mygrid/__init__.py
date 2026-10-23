@@ -4,8 +4,8 @@ from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
+from mygrid_modbus import MyGridClient, MyGridError, UnsupportedMapError
 
-from .client import MyGridClient, MyGridError, UnsupportedMapError
 from .const import DOMAIN
 from .coordinator import MyGridConfigEntry, MyGridCoordinator
 

@@ -4,10 +4,12 @@ version = "0.1.0"
 description = "Local MyGrid ModuleTwo Modbus TCP integration for Home Assistant"
 requires-python = ">=3.14.2"
 license = "MIT"
-dependencies = ["pymodbus==3.13.1"]
+dependencies = ["mygrid-modbus==0.1.0"]
 
 [dependency-groups]
 dev = [
+  # Match the current stable Core Modbus pin during integration tests.
+  "pymodbus==3.13.1",
   "pytest-homeassistant-custom-component==0.13.373",
   "ruff==0.17.2",
   "mypy==2.4.0",
@@ -15,6 +17,10 @@ dev = [
 
 [tool.uv]
 package = false
+
+[tool.uv.sources]
+# Development-only source; the HA manifest installs the versioned PyPI release.
+mygrid-modbus = { path = "../mygrid-modbus" }
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

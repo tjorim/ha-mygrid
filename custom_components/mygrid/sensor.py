@@ -13,8 +13,8 @@ from homeassistant.components.sensor import (
 from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfEnergy, UnitOfPower
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from mygrid_modbus import BatteryData
 
-from .client import BatteryData
 from .coordinator import MyGridConfigEntry, MyGridCoordinator
 from .entity import MyGridEntity
 

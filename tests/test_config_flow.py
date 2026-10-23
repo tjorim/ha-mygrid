@@ -5,9 +5,9 @@ from unittest.mock import patch
 import pytest
 from homeassistant.config_entries import SOURCE_RECONFIGURE, SOURCE_USER
 from homeassistant.data_entry_flow import FlowResultType
+from mygrid_modbus import MyGridError, UnsupportedMapError
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.mygrid.client import MyGridError, UnsupportedMapError
 from custom_components.mygrid.config_flow import normalize_host
 from custom_components.mygrid.const import DOMAIN
 

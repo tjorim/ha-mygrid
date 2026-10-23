@@ -2,7 +2,7 @@
 
 Local monitoring and explicit power control for **MyGrid ModuleTwo** batteries over Modbus TCP. No cloud service or account is used by the integration.
 
-Requires **Home Assistant 2026.10.2 or newer** (Python 3.14.2+). Version 0.1.0 targets the supplied ModuleTwo register map **version 2**. Automated tests use Home Assistant 2026.10.2 and pymodbus 3.13.1. Physical battery validation is pending; use the [acceptance checklist](docs/hardware-testing.md).
+Requires **Home Assistant 2026.10.2 or newer** (Python 3.14.2+). Version 0.1.0 targets the supplied ModuleTwo register map **version 2**. The integration consumes the separate **`mygrid-modbus==0.1.0`** library. Integration tests use Home Assistant 2026.10.2 and its pymodbus 3.13.1 pin. Physical battery validation is pending; use the [acceptance checklist](docs/hardware-testing.md).
 
 This is a community custom integration, engineered against applicable Home Assistant Platinum requirements. It has **not** received an official Home Assistant quality rating. See [quality tracking](custom_components/mygrid/quality_scale.yaml).
 
@@ -18,7 +18,9 @@ The protocol has no TLS or authentication. Keep it on your trusted LAN; do not f
 
 ## Installation
 
-### Manual installation (available now)
+### Manual installation
+
+**Release prerequisite:** publish the separate `mygrid-modbus==0.1.0` package to PyPI first. Home Assistant installs this exact version from the manifest; copying the integration alone cannot install an unpublished dependency. For development before publication, use the sibling-checkout instructions below.
 
 Copy the entire `custom_components/mygrid` directory into your Home Assistant configuration directory as `custom_components/mygrid`, then restart Home Assistant.
 
@@ -33,7 +35,7 @@ Unit ID is fixed to the documented value **1**. Setup reads the device and verif
 
 ### HACS (after publishing this repository)
 
-In HACS, open **Custom repositories**, paste this repository's GitHub URL, choose **Integration**, then download **MyGrid ModuleTwo** and restart Home Assistant. Add MyGrid through Devices & services as above. No repository has been published by this local implementation; see [release instructions](docs/releasing.md).
+After the library is on PyPI and this integration repository is on GitHub, in HACS open **Custom repositories**, paste this repository's GitHub URL, choose **Integration**, then download **MyGrid ModuleTwo** and restart Home Assistant. Add MyGrid through Devices & services as above. No repository has been published by this local implementation; see [release instructions](docs/releasing.md).
 
 ## Entities
 
@@ -139,7 +141,17 @@ Remove the integration under Devices & services to stop polling and close the co
 
 ## Development
 
-Install [uv](https://docs.astral.sh/uv/), then:
+The protocol library lives in a separate repository, **`mygrid-modbus`** (Python import `mygrid_modbus`). This repository contains only Home Assistant configuration, coordination, entities and integration tests. There is no bundled protocol fallback. See the [library README](../mygrid-modbus/README.md) in this local workspace; the intended GitHub repository is `tjorim/mygrid-modbus`.
+
+Install [uv](https://docs.astral.sh/uv/) and place the repositories side by side:
+
+```text
+workspace/
+  ha-mygrid/
+  mygrid-modbus/
+```
+
+From `ha-mygrid`:
 
 ```sh
 uv sync --frozen
@@ -150,4 +162,8 @@ uv run pytest
 uv run python scripts/validate_metadata.py
 ```
 
-The lockfile pins Home Assistant, its custom-integration pytest harness and all dependencies. Tests include a local TCP simulator; they do not contact or control a real battery. See [architecture](docs/architecture.md), [hardware testing](docs/hardware-testing.md), and [release instructions](docs/releasing.md). MIT license covers the original code; the supplied vendor manual is referenced, not republished.
+`[tool.uv.sources]` installs the sibling library as a normal package for local development. The integration imports only its public API. This development override is never read by Home Assistant; runtime installation uses the exact package-index pin in `manifest.json`. Changes to the local library require `uv sync --reinstall-package mygrid-modbus` before rerunning integration checks. The two repositories have independent lockfiles, environments, tests and releases. CI checks out the companion library at a fixed commit alongside this repository.
+
+For a Home Assistant Core development checkout before PyPI publication, install the sibling library in that checkout's environment with `uv pip install ../mygrid-modbus` and start Home Assistant with `hass --skip-pip-packages mygrid-modbus`. This is a developer override, not a HACS installation procedure. After publishing the library, remove this repository's `[tool.uv.sources]` override and run `uv lock --no-sources`; CI can then use the published package without the sibling checkout. Do not point the production manifest at a local directory or an unversioned Git branch.
+
+The integration suite tests Home Assistant behavior and includes one end-to-end TCP simulator test against the installed library. The library's independent suite owns protocol decoding and transport edge cases. Neither contacts or controls a real battery. See [architecture](docs/architecture.md), [hardware testing](docs/hardware-testing.md), and [release instructions](docs/releasing.md). MIT license covers the original code; the supplied vendor manual is referenced, not republished.

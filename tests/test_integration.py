@@ -10,14 +10,14 @@ from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
-from pytest_homeassistant_custom_component.common import async_fire_time_changed
-
-from custom_components.mygrid.client import (
+from mygrid_modbus import (
     FAULTS,
     InvalidSetpointError,
     MyGridError,
     UnsupportedMapError,
 )
+from pytest_homeassistant_custom_component.common import async_fire_time_changed
+
 from custom_components.mygrid.const import DOMAIN
 from custom_components.mygrid.diagnostics import async_get_config_entry_diagnostics
 

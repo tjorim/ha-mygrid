@@ -4,9 +4,9 @@ from collections.abc import Generator
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from mygrid_modbus import MyGridClient, decode_registers
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.mygrid.client import MyGridClient, decode_registers
 from custom_components.mygrid.const import DOMAIN
 
 

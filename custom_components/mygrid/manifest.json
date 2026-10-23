@@ -13,7 +13,7 @@
   ],
   "name": "MyGrid",
   "requirements": [
-    "pymodbus==3.13.1"
+    "mygrid-modbus==0.1.0"
   ],
   "version": "0.1.0"
 }

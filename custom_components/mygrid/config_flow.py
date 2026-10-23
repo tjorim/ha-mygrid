@@ -9,8 +9,8 @@ import probatio as vol
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult, OptionsFlow
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import callback
+from mygrid_modbus import MyGridClient, MyGridError, UnsupportedMapError
 
-from .client import MyGridClient, MyGridError, UnsupportedMapError
 from .const import (
     CONF_POLL_INTERVAL,
     DEFAULT_POLL_INTERVAL,
