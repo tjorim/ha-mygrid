@@ -10,14 +10,14 @@
     "entity.py": "9b423b512cbca5b87fcf6d17057172206fcc2f59e46d73d7cf5c2519e6da25f0",
     "helpers.py": "4622992a366e206829a33f9d7e47b122b845b2f4a4a8a2e19e1138e334212ffc",
     "icons.json": "7b82d0419040d0d80600f9008d7aea4ce37f5f5f6e2fc92ba90b3e64d91b41d1",
-    "manifest.json": "4f48cff11102eca60e7348706b774296a805dc6989fc87d8ae8651c53e09e7f7",
+    "manifest.json": "876e2f8998cc203889e2b9b673caade3ee2caa5f76160a304b67b21b31601976",
     "number.py": "8a0817aa4b720424eab987acae13978996c2c706a2e0ae730b3b34525accefbe",
     "quality_scale.yaml": "67cca648a80f671d403d1fa211d7a5f6a37981a78befb1f9beb0b28eaaa32ca1",
     "sensor.py": "15ca8d57a434a7ec5302aad74ff53a80b5e344dc6929fbebf1543fafa3aee5fa",
     "strings.json": "b4c3f18944be5f7c3e4a6f4961560eaed5eb8d3f19a84f71a8533b9c032ad7b2",
     "translations/en.json": "b4c3f18944be5f7c3e4a6f4961560eaed5eb8d3f19a84f71a8533b9c032ad7b2"
   },
-  "core_commit": "e428f5ed30b92db4d5a4363f72dd8af7ee42bf8b",
+  "core_commit": "87f8b40cd541eea5e07993b932b2a8d3606801fd",
   "library": "mygrid-modbus",
   "library_commit": "db8fcf132c63476e699d930431f19a98028e90fc",
   "sha256": {

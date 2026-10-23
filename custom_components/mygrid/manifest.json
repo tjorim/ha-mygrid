@@ -1,4 +1,6 @@
 {
+  "domain": "mygrid",
+  "name": "MyGrid",
   "codeowners": [
     "@tjorim"
   ],
@@ -7,7 +9,6 @@
     "modbus"
   ],
   "documentation": "https://github.com/tjorim/ha-mygrid/blob/main/README.md",
-  "domain": "mygrid",
   "integration_type": "device",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/tjorim/ha-mygrid/issues",
@@ -15,7 +16,6 @@
     "modbus_connection",
     "tmodbus"
   ],
-  "name": "MyGrid",
   "requirements": [],
   "version": "0.1.0"
 }

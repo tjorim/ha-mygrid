@@ -64,7 +64,8 @@ def expected(core: Path, library: Path) -> dict[Path, bytes]:
                 issue_tracker="https://github.com/tjorim/ha-mygrid/issues",
                 requirements=[],
             )
-            content = json.dumps(dict(sorted(data.items())), indent=2) + "\n"
+            keys = ["domain", "name", *sorted(set(data) - {"domain", "name"})]
+            content = json.dumps({key: data[key] for key in keys}, indent=2) + "\n"
         files[Path("custom_components/mygrid") / path.name] = (
             format_python(content, Path("custom_components/mygrid") / path.name)
             if path.suffix == ".py"
