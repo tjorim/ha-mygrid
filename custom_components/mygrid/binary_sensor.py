@@ -7,10 +7,10 @@ from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
-from mygrid_modbus import FAULTS
 
 from .coordinator import MyGridConfigEntry, MyGridCoordinator
 from .entity import MyGridEntity
+from .vendor.mygrid_modbus import FAULTS
 
 PARALLEL_UPDATES = 0
 
@@ -45,7 +45,7 @@ class MyGridProblem(MyGridEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool | None:
         """Report either the aggregate fault or a particular documented bit."""
-        data = self.coordinator.data
+        data = self.coordinator.device.snapshot
         if data.fault_flags is None:
             return None
         if self._bit is None:

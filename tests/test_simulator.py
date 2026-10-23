@@ -23,10 +23,10 @@ async def test_home_assistant_end_to_end(hass, registers):
         assert result["type"] == FlowResultType.CREATE_ENTRY
         await hass.async_block_till_done()
         entry = result["result"]
-        assert entry.runtime_data.data.state_of_charge == 82
+        assert entry.runtime_data.device.snapshot.state_of_charge == 82
         assert battery.writes == []
         await entry.runtime_data.async_set_power(-500)
-        assert entry.runtime_data.data.setpoint == -500
+        assert entry.runtime_data.device.snapshot.setpoint == -500
         assert battery.writes == [(2, 65531)]
         assert await hass.config_entries.async_unload(entry.entry_id)
         await hass.async_block_till_done()

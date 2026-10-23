@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Local MyGrid ModuleTwo Modbus TCP integration for Home Assistant"
 requires-python = ">=3.14.2"
 license = "MIT"
-dependencies = ["mygrid-modbus==0.1.0"]
+dependencies = []
 
 [dependency-groups]
 dev = [
@@ -20,10 +20,6 @@ dev = [
 [tool.uv]
 package = false
 
-[tool.uv.sources]
-# Development-only source; the HA manifest installs the versioned PyPI release.
-mygrid-modbus = { path = "../mygrid-modbus" }
-
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
@@ -35,10 +31,12 @@ markers = ["simulator: exercises the real TCP protocol against a local simulator
 
 [tool.coverage.run]
 branch = true
+omit = ["custom_components/mygrid/vendor/*"]
 source = ["custom_components.mygrid"]
 
 [tool.ruff]
 target-version = "py314"
+extend-exclude = ["custom_components/mygrid/vendor"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "ASYNC"]
@@ -49,3 +47,4 @@ python_version = "3.14"
 strict = true
 follow_imports = "silent"
 files = ["custom_components/mygrid"]
+exclude = ["custom_components/mygrid/vendor"]

@@ -21,3 +21,8 @@ class MyGridEntity(CoordinatorEntity[MyGridCoordinator]):
             manufacturer="MyGrid",
             model="ModuleTwo",
         )
+
+    @property
+    def available(self) -> bool:
+        """Expose measurements only when their component refreshed successfully."""
+        return super().available and "battery" in self.coordinator.data.updated

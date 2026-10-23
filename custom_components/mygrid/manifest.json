@@ -16,8 +16,6 @@
     "tmodbus"
   ],
   "name": "MyGrid",
-  "requirements": [
-    "mygrid-modbus==0.1.0"
-  ],
+  "requirements": [],
   "version": "0.1.0"
 }

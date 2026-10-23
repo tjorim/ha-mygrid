@@ -11,7 +11,7 @@ from homeassistant.config_entries import ConfigFlow, ConfigFlowResult, OptionsFl
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError
-from mygrid_modbus import UNIT_ID, MyGridClient, MyGridError, UnsupportedMapError
+from modbus_connection import ModbusError
 
 from .const import (
     CONF_POLL_INTERVAL,
@@ -23,6 +23,7 @@ from .const import (
 )
 from .coordinator import MyGridConfigEntry
 from .helpers import create_modbus_params
+from .vendor.mygrid_modbus import UNIT_ID, MyGridDevice, UnsupportedMapError
 
 
 @callback
@@ -77,11 +78,10 @@ class MyGridConfigFlow(ConfigFlow, domain=DOMAIN):
             async with async_get_temporary_unit(
                 self.hass, create_modbus_params(data), UNIT_ID
             ) as unit:
-                unit.require_timeout(3)
-                await MyGridClient(unit).async_read()
+                await MyGridDevice(unit).async_read()
         except UnsupportedMapError:
             return "unsupported_map"
-        except MyGridError:
+        except ModbusError, OSError, TimeoutError:
             return "cannot_connect"
         except HomeAssistantError:
             return "link_settings_in_use"

@@ -7,11 +7,14 @@ from homeassistant.components.modbus.connection import async_get_connection_info
 from homeassistant.config_entries import SOURCE_RECONFIGURE, SOURCE_USER
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.exceptions import HomeAssistantError
-from mygrid_modbus import MyGridError, UnsupportedMapError
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.mygrid.config_flow import normalize_host
 from custom_components.mygrid.const import DOMAIN
+from custom_components.mygrid.vendor.mygrid_modbus import (
+    MyGridError,
+    UnsupportedMapError,
+)
 
 
 @pytest.mark.parametrize(

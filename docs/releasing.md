@@ -1,16 +1,11 @@
-# Releasing
+# Community-testing releases
 
-This delivery creates two local Git repositories: this integration and the sibling `mygrid-modbus` protocol library. HACS installation from a custom repository becomes possible after a maintainer publishes it on GitHub.
+The HACS package is self-contained: its device library is vendored from the canonical standalone package. A PyPI release is not required for community testing. Publication of this repository on GitHub is still needed for HACS custom-repository downloads; the manual-install ZIP can be used locally now.
 
-1. Release **`mygrid-modbus==0.1.0` to PyPI first**, following its own release instructions. Verify installation into an empty environment. Then remove the development-only `[tool.uv.sources]` override here, run `uv lock --no-sources`, remove CI’s companion-library checkout, and test with the published package. Normal HACS installation and Home Assistant core cannot use an unpublished sibling checkout.
-2. Confirm the GitHub owner/repository and maintainer. Manifest links and `codeowners` are prepared for `tjorim/ha-mygrid`, based on the connected GitHub account; these links will become live only if the local repository is published there. If publishing elsewhere, update `documentation`, `issue_tracker` and `codeowners` first. No remote repository was created.
-3. Add a GitHub repository description and suitable `home-assistant`, `hacs`, `mygrid`, and `modbus` topics. Keep the repository layout as shipped: `custom_components/mygrid`.
-4. Run the locked development commands in README. CI enforces lint, formatting, strict types, at least 95% branch-aware coverage, local metadata validation and HACS validation. HACS's remote action needs a real GitHub repository and cannot be fully verified locally.
-5. Complete and record the hardware checklist; document any firmware or cluster limitations. Do not label the release physically verified until results exist.
-6. Review every `quality_scale.yaml` entry and evidence, especially the unresolved maintainer/branding items. Official Platinum grading is unavailable to a standalone custom integration; do not set a misleading manifest rating.
-7. Keep `manifest.json` and `pyproject.toml` versions aligned. Tag `v0.1.0`, create GitHub release notes describing compatibility and known limitations, and publish the repository.
-8. Test HACS custom-repository installation in a clean Home Assistant instance. If later seeking default HACS listing, follow HACS's current publication requirements and submit separately.
+1. Commit the reviewed library and core-overlay changes. Regenerate with `scripts/sync_sources.py`, verify `--check`, inspect the source commit/hash provenance, and run the local validation commands from README.
+2. Record the hardware checklist results; do not mark a release physically verified until those results exist. Confirm ongoing ownership and obtain manufacturer-approved brand artwork. Remove the explicit HACS `brands` exemption once artwork is included.
+3. Run `scripts/build_release.py`. The ZIP includes the integration directory, vendored source and license; it excludes caches. Test it in a clean Home Assistant configuration using the minimum supported version.
+4. Publish this repository under the actual GitHub owner, confirm documentation/issue URLs and repository topics, tag the version, and create release notes. The CI validates the standalone checkout and builds the ZIP; no release is published by local commands.
+5. Test HACS custom-repository installation. Default HACS listing is a separate submission, not implied by custom-repository compatibility.
 
-Updates: download the new HACS version (or replace the integration directory manually), restart Home Assistant, and review release notes. To roll back, restore the previous tagged directory/version and restart; do not replay prior power commands. Retain version-1 config compatibility unless a migration is implemented and tested.
-
-For eventual Home Assistant core submission, keep only Home Assistant-specific code in the integration, retain the exact released library requirement, and adapt the custom-integration manifest fields and test locations to core conventions. The separate library is a prerequisite, not a substitute for hardware validation and the normal integration review/quality requirements.
+For core submission, use `ha-mygrid-core` and publish the independent library to PyPI first. Core does not use this vendored copy. Keep library and core sources authoritative and regenerate the HACS adaptation to prevent protocol drift. Never maintain or run two implementations of the `mygrid` domain in one Home Assistant instance.

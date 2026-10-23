@@ -1,0 +1,34 @@
+{
+  "adapter_sha256": {
+    "__init__.py": "179a1e65dafb600133db232b2c3961171df6f13992ae27ebe0056991785808f9",
+    "binary_sensor.py": "575dd03ebbbe02e4096aad1f00e00a8e7997cbc202fe27c199018be2a93d84d2",
+    "button.py": "4dbfdf3d77c066c5951e479bf21bcd1bd32a744be4af34af23571bb51ca83c90",
+    "config_flow.py": "f7d8cf2b6e098e92207325d8b8d8402bbc8bd2981cf8b45a651ef11efd269c4a",
+    "const.py": "7f051a340ec748ff02457153578bdc7eb966ea94196d4336e1b4bc39a47863d6",
+    "coordinator.py": "bacaf729e9176e2f4cc36061132cb1d9a25a40fe8f586a3d351b7c6aed8c24cf",
+    "diagnostics.py": "b5367c79796ddcb3ed157edcf26c8fb610c9042077b1beb7a1599d575b3f4099",
+    "entity.py": "9b423b512cbca5b87fcf6d17057172206fcc2f59e46d73d7cf5c2519e6da25f0",
+    "helpers.py": "4622992a366e206829a33f9d7e47b122b845b2f4a4a8a2e19e1138e334212ffc",
+    "icons.json": "7b82d0419040d0d80600f9008d7aea4ce37f5f5f6e2fc92ba90b3e64d91b41d1",
+    "manifest.json": "4f48cff11102eca60e7348706b774296a805dc6989fc87d8ae8651c53e09e7f7",
+    "number.py": "8a0817aa4b720424eab987acae13978996c2c706a2e0ae730b3b34525accefbe",
+    "quality_scale.yaml": "67cca648a80f671d403d1fa211d7a5f6a37981a78befb1f9beb0b28eaaa32ca1",
+    "sensor.py": "15ca8d57a434a7ec5302aad74ff53a80b5e344dc6929fbebf1543fafa3aee5fa",
+    "strings.json": "b4c3f18944be5f7c3e4a6f4961560eaed5eb8d3f19a84f71a8533b9c032ad7b2",
+    "translations/en.json": "b4c3f18944be5f7c3e4a6f4961560eaed5eb8d3f19a84f71a8533b9c032ad7b2"
+  },
+  "core_commit": "f8940499c4590c530817090dde4ba73795b0a5e9",
+  "library": "mygrid-modbus",
+  "library_commit": "d0019c763b2526ecb0e2fc462cf8f4ef628607d9",
+  "sha256": {
+    "__init__.py": "92595cf6d407b50cbfedc5da5ae33900d92d1ccaa6d6c8ff7b40698bd62f5e1f",
+    "battery.py": "d54d2d3c95d2ae7a2f21a930d0c32943a9197709f471c5970a7b320416b4d1dd",
+    "cli.py": "2757ad12665b4c66c76e73247187b51d8e54ce5bb95fdbe6bb98e2dd58906c8c",
+    "const.py": "1b75b9583cacb5e8b71a9db87faff0c50d4c6ed092c544e5c1fad6854a898125",
+    "data.py": "91da95c8da178198fcdeef86cf2aef815b84a4dbddd518838cbceb8e39f33c7e",
+    "device.py": "769d2734b8e7152995b3167ff5cb495e46f3b8a1b988f9861725cc4405aa16d9",
+    "exceptions.py": "0ed965d9a81946e4741f6743475d5dbfec2a5fd5dd82edba855b5d8b9b9f39fa",
+    "py.typed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "version": "0.1.0"
+}

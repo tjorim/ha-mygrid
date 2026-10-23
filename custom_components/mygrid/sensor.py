@@ -5,18 +5,19 @@ from dataclasses import dataclass
 from typing import Any
 
 from homeassistant.components.sensor import (
+    RestoreSensor,
     SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
     SensorStateClass,
 )
 from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfEnergy, UnitOfPower
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
-from mygrid_modbus import BatteryData
 
 from .coordinator import MyGridConfigEntry, MyGridCoordinator
 from .entity import MyGridEntity
+from .vendor.mygrid_modbus import BatteryData
 
 PARALLEL_UPDATES = 0
 STATUS = ("normal", "fault", "telemetry_stale")
@@ -141,7 +142,11 @@ async def async_setup_entry(
 ) -> None:
     """Create all sensors without further network calls."""
     async_add_entities(
-        MyGridSensor(entry.runtime_data, entry.entry_id, description)
+        (
+            MyGridTotalSensor
+            if description.state_class == SensorStateClass.TOTAL_INCREASING
+            else MyGridSensor
+        )(entry.runtime_data, entry.entry_id, description)
         for description in SENSORS
     )
 
@@ -161,13 +166,53 @@ class MyGridSensor(MyGridEntity, SensorEntity):
         self.entity_description = description
 
     @property
-    def native_value(self) -> int | str | None:
+    def native_value(self) -> int | float | str | None:
         """Return unknown for stale measurements, not an invented zero."""
-        return self.entity_description.value_fn(self.coordinator.data)
+        return self.entity_description.value_fn(self.coordinator.device.snapshot)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
         """Explain diagnostic bits while preserving the full fault word."""
         if self.entity_description.key == "fault_flags":
-            return {"active_faults": self.coordinator.data.active_faults}
+            return {"active_faults": self.coordinator.device.snapshot.active_faults}
         return None
+
+
+class MyGridTotalSensor(MyGridSensor, RestoreSensor):
+    """Retain cumulative energy during outages and restore it across restarts."""
+
+    _attr_native_value: int | float | None = None
+
+    @property
+    def available(self) -> bool:
+        """A known cumulative value remains usable while measurements are offline."""
+        return self._attr_native_value is not None
+
+    @property
+    def native_value(self) -> int | float | None:
+        """Return the last confirmed counter, never a synthetic zero."""
+        return self._attr_native_value
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if (stored := await self.async_get_last_sensor_data()) is not None:
+            if isinstance(stored.native_value, (int, float)):
+                self._attr_native_value = stored.native_value
+        self._update_total()
+
+    def _update_total(self) -> None:
+        if (
+            not self.coordinator.last_update_success
+            or "battery" not in self.coordinator.data.updated
+        ):
+            return
+        value = self.entity_description.value_fn(self.coordinator.device.snapshot)
+        if isinstance(value, (int, float)):
+            # The protocol documents U32 lifetime counters, including real
+            # rollover/reset. Preserve such decreases for TOTAL_INCREASING.
+            self._attr_native_value = value
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update_total()
+        super()._handle_coordinator_update()

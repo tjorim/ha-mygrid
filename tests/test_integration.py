@@ -11,16 +11,24 @@ from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
-from mygrid_modbus import (
+from modbus_connection.model import UpdateReport
+from pytest_homeassistant_custom_component.common import async_fire_time_changed
+
+from custom_components.mygrid.const import DOMAIN
+from custom_components.mygrid.diagnostics import (
+    async_get_config_entry_diagnostics,
+)
+from custom_components.mygrid.vendor.mygrid_modbus import (
     FAULTS,
     InvalidSetpointError,
     MyGridError,
     UnsupportedMapError,
 )
-from pytest_homeassistant_custom_component.common import async_fire_time_changed
 
-from custom_components.mygrid.const import DOMAIN
-from custom_components.mygrid.diagnostics import async_get_config_entry_diagnostics
+
+def publish(coordinator, snapshot):
+    coordinator.device.snapshot = snapshot
+    coordinator.async_set_updated_data(UpdateReport(updated={"battery"}))
 
 
 def entity_id(hass, entry, platform, key):
@@ -81,7 +89,7 @@ async def test_entities(hass, entry, mock_client, device_registry):
     assert len(device_registry.devices) == 1
     assert not state(hass, entry, "fault_flags")
     assert not state(hass, entry, "restart", "button")
-    mock_client.async_read.assert_awaited_once()
+    mock_client.async_update.assert_awaited_once()
     mock_client.async_set_power.assert_not_called()
     mock_client.async_restart.assert_not_called()
 
@@ -89,9 +97,10 @@ async def test_entities(hass, entry, mock_client, device_registry):
 async def test_stale_and_recovery(hass, entry, mock_client):
     await setup(hass, entry)
     coordinator = entry.runtime_data
-    original = coordinator.data
-    coordinator.async_set_updated_data(
-        replace(original, status=2, state_of_charge=None, power=None, fault_flags=None)
+    original = coordinator.device.snapshot
+    publish(
+        coordinator,
+        replace(original, status=2, state_of_charge=None, power=None, fault_flags=None),
     )
     await hass.async_block_till_done()
     for key in ["state_of_charge", "power", "charging_power", "discharging_power"]:
@@ -99,7 +108,7 @@ async def test_stale_and_recovery(hass, entry, mock_client):
     assert state(hass, entry, "problem", "binary_sensor").state == STATE_UNKNOWN
     assert state(hass, entry, "status").state == "telemetry_stale"
     assert state(hass, entry, "stored_energy").state == "3000"
-    coordinator.async_set_updated_data(original)
+    publish(coordinator, original)
     await hass.async_block_till_done()
     assert state(hass, entry, "state_of_charge").state == "82"
 
@@ -114,7 +123,7 @@ async def test_optional_faults(hass, entry, mock_client, bit):
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
     coordinator = entry.runtime_data
-    coordinator.async_set_updated_data(replace(coordinator.data, fault_flags=1 << bit))
+    publish(coordinator, replace(coordinator.device.snapshot, fault_flags=1 << bit))
     await hass.async_block_till_done()
     assert state(hass, entry, "fault_flags").state == str(1 << bit)
     assert state(hass, entry, "fault_flags").attributes["active_faults"] == [
@@ -126,8 +135,8 @@ async def test_optional_faults(hass, entry, mock_client, bit):
         assert state(hass, entry, f"fault_{name}", "binary_sensor").state == (
             "on" if other == bit else "off"
         )
-    coordinator.async_set_updated_data(
-        replace(coordinator.data, status=2, fault_flags=None)
+    publish(
+        coordinator, replace(coordinator.device.snapshot, status=2, fault_flags=None)
     )
     await hass.async_block_till_done()
     assert (
@@ -141,8 +150,9 @@ async def test_optional_faults(hass, entry, mock_client, bit):
 async def test_aggregate_fault(hass, entry, mock_client, status, flags):
     await setup(hass, entry)
     coordinator = entry.runtime_data
-    coordinator.async_set_updated_data(
-        replace(coordinator.data, status=status, fault_flags=flags)
+    publish(
+        coordinator,
+        replace(coordinator.device.snapshot, status=status, fault_flags=flags),
     )
     await hass.async_block_till_done()
     assert state(hass, entry, "problem", "binary_sensor").state == "on"
@@ -151,7 +161,7 @@ async def test_aggregate_fault(hass, entry, mock_client, status, flags):
 async def test_command(hass, entry, mock_client):
     await setup(hass, entry)
     mock_client.async_set_power.return_value = replace(
-        entry.runtime_data.data, setpoint=500, power=500
+        entry.runtime_data.device.snapshot, setpoint=500, power=500
     )
     await hass.services.async_call(
         "number",
@@ -177,8 +187,9 @@ async def test_command_validation(hass, entry, mock_client):
 async def test_command_failed(hass, entry, mock_client):
     await setup(hass, entry)
     mock_client.async_set_power.side_effect = MyGridError()
-    with pytest.raises(HomeAssistantError, match="may have been applied"):
+    with pytest.raises(HomeAssistantError) as raised:
         await entry.runtime_data.async_set_power(600)
+    assert raised.value.translation_key == "command_failed"
     await hass.async_block_till_done()
     assert not entry.runtime_data.last_update_success
     assert state(hass, entry, "state_of_charge").state == STATE_UNAVAILABLE
@@ -220,8 +231,9 @@ async def test_restart(hass, entry, mock_client, error):
 async def test_dynamic_bounds(hass, entry, mock_client):
     await setup(hass, entry)
     coordinator = entry.runtime_data
-    coordinator.async_set_updated_data(
-        replace(coordinator.data, max_charge=6553500, max_discharge=6553500)
+    publish(
+        coordinator,
+        replace(coordinator.device.snapshot, max_charge=6553500, max_discharge=6553500),
     )
     await hass.async_block_till_done()
     attributes = state(hass, entry, "power_setpoint", "number").attributes
@@ -232,14 +244,14 @@ async def test_dynamic_bounds(hass, entry, mock_client):
 async def test_failure_recovery_logging(hass, entry, mock_client, caplog):
     await setup(hass, entry)
     coordinator = entry.runtime_data
-    mock_client.async_read.side_effect = MyGridError()
+    mock_client.async_update.side_effect = MyGridError()
     caplog.clear()
     await coordinator.async_refresh()
     await coordinator.async_refresh()
     await hass.async_block_till_done()
     assert state(hass, entry, "state_of_charge").state == STATE_UNAVAILABLE
     assert sum("Error fetching mygrid" in r.message for r in caplog.records) == 1
-    mock_client.async_read.side_effect = None
+    mock_client.async_update.side_effect = None
     await coordinator.async_refresh()
     await hass.async_block_till_done()
     assert state(hass, entry, "state_of_charge").state == "82"
@@ -252,14 +264,14 @@ async def test_polling_and_unload(hass, entry, mock_client, freezer):
     freezer.tick(timedelta(seconds=6))
     async_fire_time_changed(hass, dt_util.utcnow())
     await hass.async_block_till_done()
-    assert mock_client.async_read.await_count == 2
+    assert mock_client.async_update.await_count == 2
     assert await hass.config_entries.async_unload(entry.entry_id)
     await hass.async_block_till_done()
     assert async_get_connection_info(hass) == []
     freezer.tick(timedelta(seconds=10))
     async_fire_time_changed(hass, dt_util.utcnow())
     await hass.async_block_till_done()
-    assert mock_client.async_read.await_count == 2
+    assert mock_client.async_update.await_count == 2
     mock_client.async_set_power.assert_not_called()
     mock_client.async_restart.assert_not_called()
 
@@ -273,7 +285,10 @@ async def test_polling_and_unload(hass, entry, mock_client, freezer):
 )
 async def test_setup_failure(hass, entry, mock_client, error, expected):
     entry.add_to_hass(hass)
-    mock_client.async_read.side_effect = error
+    if isinstance(error, UnsupportedMapError):
+        mock_client.async_update.return_value = UpdateReport(failed={"battery": error})
+    else:
+        mock_client.async_update.side_effect = error
     assert not await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
     assert entry.state == expected
@@ -289,7 +304,7 @@ async def test_diagnostics(hass, entry, mock_client):
     text = str(diagnostics)
     for secret in [entry.entry_id, entry.unique_id, "battery.local", entry.title]:
         assert secret not in text
-    mock_client.async_read.assert_awaited_once()
+    mock_client.async_update.assert_awaited_once()
 
 
 async def test_failed_unload_keeps_connection(hass, entry, mock_client):

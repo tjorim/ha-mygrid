@@ -2,7 +2,7 @@
 
 Local monitoring and explicit power control for **MyGrid ModuleTwo** batteries over Modbus TCP. No cloud service or account is used by the integration.
 
-Requires **Home Assistant 2026.10.2 or newer** (Python 3.14.2+). Version 0.1.0 targets the supplied ModuleTwo register map **version 2**. The integration consumes the separate **`mygrid-modbus==0.1.0`** library. The integration borrows a shared connection from Home Assistant’s Modbus integration, using `modbus-connection` and its `tmodbus` backend. Tests use Home Assistant 2026.10.2 and its exact transport dependency versions. Physical battery validation is pending; use the [acceptance checklist](docs/hardware-testing.md).
+Requires **Home Assistant 2026.10.2 or newer** (Python 3.14.2+). Version 0.1.0 targets the supplied ModuleTwo register map **version 2**. The HACS package includes a generated, licensed copy of the independent **`mygrid-modbus`** device library, so testing does not require a PyPI release. The integration borrows a shared connection from Home Assistant’s Modbus integration, using `modbus-connection` and its `tmodbus` backend. Tests use Home Assistant 2026.10.2 and its exact transport dependency versions. Physical battery validation is pending; use the [acceptance checklist](docs/hardware-testing.md).
 
 This is a community custom integration, engineered against applicable Home Assistant Platinum requirements. It has **not** received an official Home Assistant quality rating. See [quality tracking](custom_components/mygrid/quality_scale.yaml).
 
@@ -20,7 +20,7 @@ The protocol has no TLS or authentication. Keep it on your trusted LAN; do not f
 
 ### Manual installation
 
-**Release prerequisite:** publish the separate `mygrid-modbus==0.1.0` package to PyPI first. Home Assistant installs this exact version from the manifest; copying the integration alone cannot install an unpublished dependency. For development before publication, use the sibling-checkout instructions below.
+The complete package is ready for manual testing now. Build or use `dist/mygrid-0.1.0.zip`, extract it into the Home Assistant configuration directory, and restart. The vendored library is included and no standalone package installation is required.
 
 Copy the entire `custom_components/mygrid` directory into your Home Assistant configuration directory as `custom_components/mygrid`, then restart Home Assistant.
 
@@ -35,7 +35,7 @@ Unit ID is fixed to the documented value **1**. Setup reads the device and verif
 
 ### HACS (after publishing this repository)
 
-After the library is on PyPI and this integration repository is on GitHub, in HACS open **Custom repositories**, paste this repository's GitHub URL, choose **Integration**, then download **MyGrid ModuleTwo** and restart Home Assistant. Add MyGrid through Devices & services as above. No repository has been published by this local implementation; see [release instructions](docs/releasing.md).
+After this integration repository is published on GitHub, in HACS open **Custom repositories**, paste this repository's GitHub URL, choose **Integration**, then download **MyGrid ModuleTwo** and restart Home Assistant. Add MyGrid through Devices & services as above. No repository has been published by this local implementation; see [release instructions](docs/releasing.md).
 
 ## Entities
 
@@ -58,7 +58,7 @@ After the library is on PyPI and this integration repository is on GitHub, in HA
 
 Enable optional entities on the device's entity list. Fault names are described in [the register reference](docs/protocol.md). Bit 0 can mean a battery communication fault **or** a battery-system error. Unknown bits remain visible in the raw flags and trigger Problem.
 
-When status is `telemetry_stale`, state of charge, measured/derived power, and fault indicators become **unknown**. Other valid registers remain available. A connection failure makes all entities **unavailable**. The integration reports failures on transitions and recovers automatically as polling resumes.
+When status is `telemetry_stale`, state of charge, measured/derived power, and fault indicators become **unknown**. Other valid registers remain available. A connection failure makes live measurements **unavailable**. Lifetime energy counters retain their last confirmed native values and restore saved values across entity restarts. The integration reports failures on transitions and recovers automatically as polling resumes.
 
 ### Power commands
 
@@ -138,23 +138,21 @@ Fault alerts can use the Problem entity as a state trigger. Status `telemetry_st
 | Unavailable | Device or network is offline; polling will reconnect without replaying commands |
 | Restart command not confirmed | Firmware may have restarted before replying; check availability before retrying manually |
 
-Download diagnostics from the integration menu. Diagnostics include decoded telemetry and polling options, with connection addresses and identifiers omitted. They may still reveal household energy usage. They perform no new device requests.
+Download diagnostics from the integration menu. Diagnostics include decoded telemetry, update-report status and a fresh, replayable raw-register dump, with network addresses and entry identifiers omitted. An offline device reports the failure type without exposing raw exception text; an unloaded entry reports `NotLoaded`. The dump may reveal household energy usage. Diagnostic reads never issue commands.
 
 Remove the integration under Devices & services to stop polling and release its connection hold. Home Assistant closes the physical connection when its last consumer releases it. Removal does not send a zero setpoint. Remove the HACS download (or local directory) and restart Home Assistant to uninstall it. Existing recorder history follows Home Assistant's normal retention settings.
 
 ## Development
 
-The protocol library lives in a separate repository, **`mygrid-modbus`** (Python import `mygrid_modbus`). This repository contains only Home Assistant configuration, coordination, entities and integration tests. There is no bundled protocol fallback. See the [library README](../mygrid-modbus/README.md) in this local workspace; the intended GitHub repository is `tjorim/mygrid-modbus`.
+This is the generated community-testing package in a three-repository workflow:
 
-Install [uv](https://docs.astral.sh/uv/) and place the repositories side by side:
+| Repository | Role |
+| --- | --- |
+| `mygrid-modbus` | Standalone component-based device library, supplied mock-backend tests, query helper and PyPI release workflow |
+| `ha-mygrid-core` | Canonical core-layout integration, tests and documentation proposal |
+| `ha-mygrid` | This HACS package, generated adapter code and byte-for-byte vendored library |
 
-```text
-workspace/
-  ha-mygrid/
-  mygrid-modbus/
-```
-
-From `ha-mygrid`:
+A checkout of this repository is self-contained for tests and installation:
 
 ```sh
 uv sync --frozen
@@ -163,10 +161,19 @@ uv run ruff format --check .
 uv run mypy
 uv run pytest
 uv run python scripts/validate_metadata.py
+uv run python scripts/build_release.py
 ```
 
-`[tool.uv.sources]` installs the sibling library as a normal package for local development. The integration imports only its public API. This development override is never read by Home Assistant; runtime installation uses the exact package-index pin in `manifest.json`. Changes to the local library require `uv sync --reinstall-package mygrid-modbus` before rerunning integration checks. The two repositories have independent lockfiles, environments, tests and releases. CI checks out the companion library at a fixed commit alongside this repository.
+The vendored files are under `custom_components/mygrid/vendor/mygrid_modbus`. The adjacent license and `origin.json` record version, source commits and per-file SHA-256 hashes. CI verifies the hashes, tests the actual vendored namespace, and runs HACS/Hassfest validation. Manufacturer-approved brand art is still pending; HACS's brand check is explicitly exempted until it is supplied. No official quality rating is claimed.
 
-For a Home Assistant Core development checkout before PyPI publication, install the sibling library in that checkout's environment with `uv pip install ../mygrid-modbus` and start Home Assistant with `hass --skip-pip-packages mygrid-modbus`. This is a developer override, not a HACS installation procedure. After publishing the library, remove this repository's `[tool.uv.sources]` override and run `uv lock --no-sources`; CI can then use the published package without the sibling checkout. Do not point the production manifest at a local directory or an unversioned Git branch.
+To change device code, edit the sibling `mygrid-modbus` repository. Edit integration code/tests in `ha-mygrid-core`. Then regenerate here:
 
-The integration suite tests Home Assistant behavior and includes TCP simulator tests of shared probes, runtime operations, restart, failed setup and unloading against the installed library. The library's independent suite owns protocol decoding and transport edge cases. Neither contacts or controls a real battery. See [architecture](docs/architecture.md), [hardware testing](docs/hardware-testing.md), and [release instructions](docs/releasing.md). MIT license covers the original code; the supplied vendor manual is referenced, not republished.
+```sh
+uv run python scripts/sync_sources.py
+uv run python scripts/sync_sources.py --check
+uv run python scripts/validate_metadata.py
+```
+
+The sync tool requires both sibling checkouts and records their Git commits. Installation, ordinary tests and metadata validation do not require either checkout or an unpublished package. The core contribution keeps its independent PyPI requirement; this generated HACS adapter imports the vendored namespace. Entity IDs and config-entry schema remain unchanged, so installing a later matching core version will require choosing one integration implementation rather than running both under the same domain.
+
+The library tests models with the supplied mock fixtures and both actual transport backends. This package tests the integration wiring, shared sockets, energy-counter restoration and raw diagnostics. Neither controls real hardware. See [architecture](docs/architecture.md), [hardware testing](docs/hardware-testing.md), and [release instructions](docs/releasing.md).

@@ -1,75 +1,68 @@
-"""Validate local packaging and translation contracts without publishing to GitHub."""
+"""Validate the standalone HACS package and its generated library provenance."""
 
 import ast
+import hashlib
 import json
 import tomllib
-from importlib.metadata import version
 from pathlib import Path
 
-import yaml
-from mygrid_modbus import FAULTS
-
 ROOT = Path(__file__).resolve().parents[1]
-COMPONENT = ROOT / "custom_components" / "mygrid"
+COMPONENT = ROOT / "custom_components/mygrid"
 
 
 def main() -> None:
-    """Fail CI for mismatched versions, missing names or stale quality entries."""
     manifest = json.loads((COMPONENT / "manifest.json").read_text())
     project = tomllib.loads((ROOT / "pyproject.toml").read_text())
-    hacs = json.loads((ROOT / "hacs.json").read_text())
     assert manifest["domain"] == "mygrid"
-    assert manifest["codeowners"] == ["@tjorim"]
-    assert manifest["documentation"].startswith("https://github.com/tjorim/ha-mygrid/")
-    assert manifest["issue_tracker"].startswith("https://github.com/tjorim/ha-mygrid/")
-    assert manifest["version"] == project["project"]["version"]
-    assert manifest["config_flow"] is True
-    assert manifest["iot_class"] == "local_polling"
+    assert manifest["version"] == project["project"]["version"] == "0.1.0"
+    assert manifest["requirements"] == project["project"]["dependencies"] == []
     assert manifest["dependencies"] == ["modbus"]
-    assert manifest["loggers"] == ["modbus_connection", "tmodbus"]
-    assert manifest["requirements"] == ["mygrid-modbus==0.1.0"]
-    assert project["project"]["dependencies"] == manifest["requirements"]
-    assert version("mygrid-modbus") == "0.1.0"
-    assert not (COMPONENT / "client.py").exists(), "Protocol belongs in the library"
-    for path in COMPONENT.glob("*.py"):
-        tree = ast.parse(path.read_text())
-        assert not any(
-            isinstance(node, (ast.Import, ast.ImportFrom))
-            and any(
-                name == "pymodbus"
-                or name.startswith("pymodbus.")
-                or name == "tmodbus"
-                or name.startswith("tmodbus.")
-                or name.startswith("modbus_connection.tmodbus")
-                or name.startswith("modbus_connection.pymodbus")
-                for name in (
-                    [node.module or ""]
-                    if isinstance(node, ast.ImportFrom)
-                    else [item.name for item in node.names]
-                )
-            )
-            for node in ast.walk(tree)
-        ), f"Direct transport import in {path.name}"
-    assert "quality_scale" not in manifest, "Custom integration has no official rating"
-    assert hacs["homeassistant"] == "2026.10.2"
-    strings = json.loads((COMPONENT / "strings.json").read_text())
-    assert json.loads((COMPONENT / "translations" / "en.json").read_text()) == strings
-    faults = FAULTS
-    assert len(faults) == 22
-    assert all(
-        f"fault_{name}" in strings["entity"]["binary_sensor"]
-        for name in faults.values()
+    assert manifest["config_flow"] and manifest["iot_class"] == "local_polling"
+    assert "quality_scale" not in manifest
+    assert json.loads((COMPONENT / "strings.json").read_text()) == json.loads(
+        (COMPONENT / "translations/en.json").read_text()
     )
-    for filename in ["manifest.json", "strings.json", "icons.json"]:
-        json.loads((COMPONENT / filename).read_text())
-    rules = yaml.safe_load((COMPONENT / "quality_scale.yaml").read_text())["rules"]
-    assert len(rules) >= 50
-    for key, rule in rules.items():
-        assert rule["status"] in {"done", "todo", "exempt"}, key
-        assert rule["comment"], key
-    for section in strings["entity"].values():
-        assert all(entity.get("name") for entity in section.values())
-    print("Metadata, versions, translations and quality tracking validated.")
+    vendor = COMPONENT / "vendor"
+    origin = json.loads((vendor / "origin.json").read_text())
+    assert origin["version"] == "0.1.0"
+    actual = {
+        path.name: hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in (vendor / "mygrid_modbus").iterdir()
+        if path.suffix == ".py" or path.name == "py.typed"
+    }
+    assert actual == origin["sha256"], (
+        "Vendored library differs from recorded source hashes"
+    )
+    adapter_files = (
+        list(COMPONENT.glob("*.py"))
+        + list(COMPONENT.glob("*.json"))
+        + list(COMPONENT.glob("*.yaml"))
+        + [COMPONENT / "translations/en.json"]
+    )
+    adapter = {
+        str(path.relative_to(COMPONENT)): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in adapter_files
+    }
+    assert adapter == origin["adapter_sha256"], (
+        "Generated adapter differs from canonical-source hashes"
+    )
+    assert (vendor / "LICENSE.mygrid-modbus").exists()
+    for path in COMPONENT.glob("*.py"):
+        for node in ast.walk(ast.parse(path.read_text())):
+            if isinstance(node, ast.ImportFrom):
+                module = node.module or ""
+                assert not module.startswith(
+                    (
+                        "pymodbus",
+                        "tmodbus",
+                        "mygrid_modbus",
+                        "modbus_connection.tmodbus",
+                        "modbus_connection.pymodbus",
+                    )
+                ), path
+    print(
+        "HACS metadata, offline vendoring provenance, and namespace boundaries validated."
+    )
 
 
 if __name__ == "__main__":

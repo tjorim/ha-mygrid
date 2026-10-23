@@ -34,17 +34,17 @@ class MyGridPowerSetpoint(MyGridEntity, NumberEntity):
     @property
     def native_value(self) -> float:
         """Return the device's accepted value."""
-        return self.coordinator.data.setpoint
+        return self.coordinator.device.snapshot.setpoint
 
     @property
     def native_min_value(self) -> float:
         """Cap unsigned device limits to the signed register range."""
-        return -min(self.coordinator.data.max_discharge, 3276800)
+        return -min(self.coordinator.device.snapshot.max_discharge, 3276800)
 
     @property
     def native_max_value(self) -> float:
         """Return the current charge limit in watts."""
-        return min(self.coordinator.data.max_charge, 3276700)
+        return min(self.coordinator.device.snapshot.max_charge, 3276700)
 
     async def async_set_native_value(self, value: float) -> None:
         """Send a single explicit command and publish readback."""

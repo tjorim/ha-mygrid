@@ -1,45 +1,57 @@
-"""Home Assistant integration fixtures."""
+"""Integration fixtures mock the independent device API, not the protocol."""
 
 from collections.abc import Generator
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from mygrid_modbus import MyGridClient, decode_registers
+from modbus_connection.model import UpdateReport
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.mygrid.const import DOMAIN
-
-
-@pytest.fixture(autouse=True)
-def custom_integrations(enable_custom_integrations) -> None:
-    """Enable local integrations without installing requirements per test."""
+from custom_components.mygrid.vendor.mygrid_modbus import BatteryData, MyGridDevice
 
 
 @pytest.fixture
 def registers() -> list[int]:
-    """Map includes negative power, high words and a high fault bit."""
     return [2, 82, 65528, 12, 10, 64736, 0, 0, 0, 0, 3000, 0, 7, 2, 9, 3, 5000, 0]
 
 
 @pytest.fixture
 def mock_client(registers: list[int]) -> Generator[AsyncMock]:
-    """Mock the network boundary, retaining real platform code."""
-    client = AsyncMock(spec=MyGridClient)
-    client.async_read.return_value = decode_registers(registers)
-    client.async_set_power.return_value = decode_registers(registers)
+    device = AsyncMock(spec=MyGridDevice)
+    device.snapshot = BatteryData(
+        2, 82, -800, 1200, 1000, -800, 0, 0, 3000, 131079, 196617, 5000
+    )
+    device.async_read.return_value = device.snapshot
+    device.async_update.return_value = UpdateReport(updated={"battery"})
+    device.async_set_power.return_value = device.snapshot
+    device.async_read_raw.return_value = {"holding": dict(enumerate(registers))}
+
+    async def confirm(value):
+        device.snapshot = device.async_set_power.return_value
+        return device.snapshot
+
+    device.async_set_power.side_effect = confirm
     with (
-        patch("custom_components.mygrid.MyGridClient", return_value=client),
-        patch("custom_components.mygrid.config_flow.MyGridClient", return_value=client),
+        patch("custom_components.mygrid.MyGridDevice", return_value=device),
+        patch(
+            "custom_components.mygrid.config_flow.MyGridDevice",
+            return_value=device,
+        ),
     ):
-        yield client
+        yield device
 
 
 @pytest.fixture
 def entry() -> MockConfigEntry:
-    """Persistent identity does not depend on the network address."""
     return MockConfigEntry(
         domain=DOMAIN,
         title="MyGrid ModuleTwo",
         unique_id="persistent-identity",
         data={"host": "battery.local", "port": 502},
     )
+
+
+@pytest.fixture(autouse=True)
+def custom_integrations(enable_custom_integrations):
+    """Enable the generated custom integration in the test runtime."""

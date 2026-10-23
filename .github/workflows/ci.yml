@@ -1,4 +1,4 @@
-name: Validate
+name: Validate HACS package
 on:
   push:
   pull_request:
@@ -7,34 +7,37 @@ permissions:
 jobs:
   tests:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ha-mygrid
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          path: ha-mygrid
-      # Development override until mygrid-modbus 0.1.0 is published on PyPI.
-      - uses: actions/checkout@v4
-        with:
-          repository: tjorim/mygrid-modbus
-          ref: 81d32f6856cad066bfe4385b07a4371fb1dacc6b
-          path: mygrid-modbus
-      - uses: astral-sh/setup-uv@v6
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884
         with:
           enable-cache: true
-          python-version: '3.14'
       - run: uv sync --frozen
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run mypy
       - run: uv run pytest
       - run: uv run python scripts/validate_metadata.py
+      - run: uv run python scripts/build_release.py
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: mygrid-community-test
+          path: dist/*.zip
+  hassfest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: home-assistant/actions/hassfest@f4ca6f671bd429efb108c0f2fa0ae8af0215986c
   hacs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: hacs/action@main
+      - uses: hacs/action@d556e736723344f83838d08488c983a15381059a
         with:
           category: integration
           comment: false
+          # Manufacturer-approved artwork has not been supplied.
+          ignore: brands
