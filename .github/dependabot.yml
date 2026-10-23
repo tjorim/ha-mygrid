@@ -1,0 +1,47 @@
+version: 2
+updates:
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+      time: "18:00"
+      timezone: "Etc/UTC"
+    assignees:
+      - "tjorim"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "uv"
+    ignore:
+      # Pinned to the versions Home Assistant core ships for its shared Modbus
+      # transport; bump them together with the supported Home Assistant version.
+      - dependency-name: "modbus-connection"
+      - dependency-name: "tmodbus"
+      - dependency-name: "pymodbus"
+    groups:
+      testing:
+        patterns:
+          - "pytest*"
+      linting:
+        patterns:
+          - "ruff"
+          - "mypy"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+      time: "18:00"
+      timezone: "Etc/UTC"
+    assignees:
+      - "tjorim"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
