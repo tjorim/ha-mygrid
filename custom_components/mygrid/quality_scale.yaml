@@ -20,7 +20,7 @@ rules:
     comment: tests/test_config_flow.py covers success, duplicate, failure, options and reconfiguration paths.
   dependency-transparency:
     status: done
-    comment: README and manifest disclose mygrid-modbus==0.1.0, its transitive pymodbus dependency and publication prerequisite.
+    comment: README and manifest disclose mygrid-modbus==0.1.0, the shared modbus-connection transport and publication prerequisite.
   docs-actions:
     status: done
     comment: README explains number.set_value and button.press, confirmation and uncertainty.
@@ -65,7 +65,7 @@ rules:
     comment: Standard entity actions raise translated ServiceValidationError or HomeAssistantError.
   config-entry-unloading:
     status: done
-    comment: Platform unload removes listeners and closes client; failed unload keeps connection. tests/test_integration.py.
+    comment: Platform unload removes listeners and releases the managed unit; other consumers keep their connection. tests/test_integration.py.
   docs-configuration-parameters:
     status: done
     comment: README explains polling interval, bounds and default.
@@ -83,7 +83,7 @@ rules:
     comment: Coordinator logs failure and recovery transitions. tests/test_integration.py.
   parallel-updates:
     status: done
-    comment: Platforms declare PARALLEL_UPDATES; client and coordinator serialize complete operations.
+    comment: Platforms declare PARALLEL_UPDATES; client/coordinator serialize operations and the HA Modbus manager shares and serializes the physical link.
   reauthentication-flow:
     status: exempt
     comment: Documented Modbus TCP endpoint has no authentication.
@@ -155,7 +155,7 @@ rules:
     comment: No dynamic subdevices; entry removal removes the single configured device through HA.
   async-dependency:
     status: done
-    comment: Independent typed mygrid-modbus library provides async-only device IO with bounded operations; its wheel has no HA dependency.
+    comment: Independent mygrid-modbus library accepts ModbusUnit; HA owns the async shared connection. Both backend suites verify no write retries.
   inject-websession:
     status: exempt
     comment: Modbus TCP has no HTTP websession.

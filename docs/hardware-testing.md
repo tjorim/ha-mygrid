@@ -12,7 +12,7 @@ Record integration version, Home Assistant version, battery firmware, map versio
 6. Briefly interrupt connectivity. Confirm entities become unavailable and recover on polling, and no old command is replayed. Do not induce hardware faults or thermal/voltage limits to test diagnostics; simulator tests cover those cases.
 7. Reconfigure to an alternative valid address spelling if available. Verify entity IDs and history remain unchanged and there is no second-client rejection.
 8. Verify lifetime charged/discharged entities can be selected for battery storage in the Energy dashboard. Allow Home Assistant time to generate statistics.
-9. Change polling and reload/unload the entry. Check that power is not changed. After unloading, a separate test client should be able to connect; disconnect it before enabling the integration again.
+9. Change polling and reload/unload the entry. Check that power is not changed. After unloading the last Home Assistant consumer, a separate test client should be able to connect; disconnect it before enabling the integration again. If another Home Assistant consumer still holds the shared endpoint, it should remain connected.
 10. Optional: enable the Restart entity and press it only during a suitable maintenance window. Confirm one restart and eventual read recovery; a missing acknowledgment must not cause another restart.
 
 A successful test report should include observations and failures, not just checked boxes. Never assume undocumented firmware fallback behavior.

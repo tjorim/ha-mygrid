@@ -25,6 +25,8 @@ def main() -> None:
     assert manifest["version"] == project["project"]["version"]
     assert manifest["config_flow"] is True
     assert manifest["iot_class"] == "local_polling"
+    assert manifest["dependencies"] == ["modbus"]
+    assert manifest["loggers"] == ["modbus_connection", "tmodbus"]
     assert manifest["requirements"] == ["mygrid-modbus==0.1.0"]
     assert project["project"]["dependencies"] == manifest["requirements"]
     assert version("mygrid-modbus") == "0.1.0"
@@ -34,7 +36,12 @@ def main() -> None:
         assert not any(
             isinstance(node, (ast.Import, ast.ImportFrom))
             and any(
-                name == "pymodbus" or name.startswith("pymodbus.")
+                name == "pymodbus"
+                or name.startswith("pymodbus.")
+                or name == "tmodbus"
+                or name.startswith("tmodbus.")
+                or name.startswith("modbus_connection.tmodbus")
+                or name.startswith("modbus_connection.pymodbus")
                 for name in (
                     [node.module or ""]
                     if isinstance(node, ast.ImportFrom)

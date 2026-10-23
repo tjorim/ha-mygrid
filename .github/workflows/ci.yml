@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: tjorim/mygrid-modbus
-          ref: f9e0410d0edd7df3a185c35084f93249f60d8b7a
+          ref: 81d32f6856cad066bfe4385b07a4371fb1dacc6b
           path: mygrid-modbus
       - uses: astral-sh/setup-uv@v6
         with:

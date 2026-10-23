@@ -22,7 +22,8 @@
     "error": {
       "cannot_connect": "Cannot read the battery. Check the address, Home Assistant control source, cluster leader, and whether another client is connected.",
       "unsupported_map": "This battery uses an unsupported Modbus register map. Only map version 2 is supported.",
-      "cannot_unload": "Could not unload the current connection. Try again after other integration tasks finish."
+      "cannot_unload": "Could not unload the current connection. Try again after other integration tasks finish.",
+      "link_settings_in_use": "The battery connection is already in use with incompatible Modbus settings."
     },
     "abort": {
       "already_configured": "This endpoint is already configured.",
@@ -181,6 +182,9 @@
     },
     "command_failed": {
       "message": "The battery command could not be confirmed. It may have been applied. Read the battery state before sending another command."
+    },
+    "link_settings_in_use": {
+      "message": "The battery connection is already in use with incompatible Modbus settings."
     }
   }
 }

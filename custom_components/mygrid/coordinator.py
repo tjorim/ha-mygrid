@@ -71,4 +71,3 @@ class MyGridCoordinator(DataUpdateCoordinator[BatteryData]):
                     translation_domain=DOMAIN, translation_key="command_failed"
                 ) from err
             self.async_set_update_error(UpdateFailed("Battery restart requested"))
-            await self.client.async_close()

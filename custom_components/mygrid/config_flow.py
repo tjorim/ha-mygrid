@@ -6,10 +6,12 @@ from collections.abc import Mapping
 from typing import Any
 
 import probatio as vol
+from homeassistant.components.modbus import async_get_temporary_unit
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult, OptionsFlow
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import callback
-from mygrid_modbus import MyGridClient, MyGridError, UnsupportedMapError
+from homeassistant.exceptions import HomeAssistantError
+from mygrid_modbus import UNIT_ID, MyGridClient, MyGridError, UnsupportedMapError
 
 from .const import (
     CONF_POLL_INTERVAL,
@@ -20,6 +22,7 @@ from .const import (
     MIN_POLL_INTERVAL,
 )
 from .coordinator import MyGridConfigEntry
+from .helpers import create_modbus_params
 
 
 @callback
@@ -70,15 +73,18 @@ class MyGridConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
     async def _validate(self, data: Mapping[str, Any]) -> str | None:
-        client = MyGridClient(data[CONF_HOST], data[CONF_PORT])
         try:
-            await client.async_read()
+            async with async_get_temporary_unit(
+                self.hass, create_modbus_params(data), UNIT_ID
+            ) as unit:
+                unit.require_timeout(3)
+                await MyGridClient(unit).async_read()
         except UnsupportedMapError:
             return "unsupported_map"
         except MyGridError:
             return "cannot_connect"
-        finally:
-            await client.async_close()
+        except HomeAssistantError:
+            return "link_settings_in_use"
         return None
 
     async def async_step_user(

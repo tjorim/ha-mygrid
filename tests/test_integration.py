@@ -5,6 +5,7 @@ from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
+from homeassistant.components.modbus.connection import async_get_connection_info
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
@@ -207,7 +208,7 @@ async def test_restart(hass, entry, mock_client, error):
             {"entity_id": entity_id(hass, entry, "button", "restart")},
             blocking=True,
         )
-        mock_client.async_close.assert_awaited_once()
+        assert len(async_get_connection_info(hass)) == 1
     await hass.async_block_till_done()
     assert not entry.runtime_data.last_update_success
     assert state(hass, entry, "power").state == STATE_UNAVAILABLE
@@ -254,7 +255,7 @@ async def test_polling_and_unload(hass, entry, mock_client, freezer):
     assert mock_client.async_read.await_count == 2
     assert await hass.config_entries.async_unload(entry.entry_id)
     await hass.async_block_till_done()
-    mock_client.async_close.assert_awaited_once()
+    assert async_get_connection_info(hass) == []
     freezer.tick(timedelta(seconds=10))
     async_fire_time_changed(hass, dt_util.utcnow())
     await hass.async_block_till_done()
@@ -276,7 +277,7 @@ async def test_setup_failure(hass, entry, mock_client, error, expected):
     assert not await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
     assert entry.state == expected
-    mock_client.async_close.assert_awaited_once()
+    assert async_get_connection_info(hass) == []
 
 
 async def test_diagnostics(hass, entry, mock_client):
@@ -297,4 +298,17 @@ async def test_failed_unload_keeps_connection(hass, entry, mock_client):
         hass.config_entries, "async_unload_platforms", return_value=False
     ):
         assert not await hass.config_entries.async_unload(entry.entry_id)
-    mock_client.async_close.assert_not_called()
+    assert len(async_get_connection_info(hass)) == 1
+
+
+async def test_setup_link_conflict(hass, entry, mock_client):
+    entry.add_to_hass(hass)
+    with patch(
+        "custom_components.mygrid.async_get_unit",
+        side_effect=HomeAssistantError("different link settings"),
+    ):
+        assert not await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    assert entry.state == ConfigEntryState.SETUP_ERROR
+    mock_client.async_read.assert_not_called()
+    assert async_get_connection_info(hass) == []

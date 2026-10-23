@@ -3,8 +3,10 @@
 from unittest.mock import patch
 
 import pytest
+from homeassistant.components.modbus.connection import async_get_connection_info
 from homeassistant.config_entries import SOURCE_RECONFIGURE, SOURCE_USER
 from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.exceptions import HomeAssistantError
 from mygrid_modbus import MyGridError, UnsupportedMapError
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -47,7 +49,7 @@ async def test_user(hass, mock_client):
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["data"] == {"host": "battery.local", "port": 502}
     assert result["result"].unique_id
-    mock_client.async_close.assert_awaited_once()
+    assert async_get_connection_info(hass) == []
     mock_client.async_set_power.assert_not_called()
 
 
@@ -61,7 +63,7 @@ async def test_setup_errors(hass, mock_client, error, key):
         DOMAIN, context={"source": SOURCE_USER}, data={"host": "battery", "port": 502}
     )
     assert result["errors"] == {"base": key}
-    mock_client.async_close.assert_awaited_once()
+    assert async_get_connection_info(hass) == []
 
 
 async def test_duplicate(hass, entry, mock_client):
@@ -129,7 +131,9 @@ async def test_reconfigure(hass, entry, mock_client):
     assert entry.data["host"] == "new.local"
     assert entry.unique_id == unique_id
     assert list(hass.states.async_entity_ids()) == registry_before
-    assert mock_client.async_close.await_count >= 2
+    info = async_get_connection_info(hass)
+    assert len(info) == 1
+    assert info[0].endpoint == ("tcp", "new.local", 502)
 
 
 async def test_reconfigure_unchanged(hass, entry, mock_client):
@@ -196,5 +200,19 @@ async def test_reconfigure_cancellation_restores(hass, entry, mock_client):
                 result["flow_id"], {"host": "other", "port": 502}
             )
         reload.assert_called_once_with(entry.entry_id)
-    mock_client.async_close.assert_awaited_once()
+    assert async_get_connection_info(hass) == []
     assert entry.data["host"] == "battery.local"
+
+
+async def test_probe_link_conflict(hass, mock_client):
+    with patch(
+        "custom_components.mygrid.config_flow.async_get_temporary_unit",
+        side_effect=HomeAssistantError("different link settings"),
+    ):
+        result = await hass.config_entries.flow.async_init(
+            DOMAIN,
+            context={"source": SOURCE_USER},
+            data={"host": "battery", "port": 502},
+        )
+    assert result["errors"] == {"base": "link_settings_in_use"}
+    mock_client.async_read.assert_not_called()

@@ -2,7 +2,7 @@
 
 Local monitoring and explicit power control for **MyGrid ModuleTwo** batteries over Modbus TCP. No cloud service or account is used by the integration.
 
-Requires **Home Assistant 2026.10.2 or newer** (Python 3.14.2+). Version 0.1.0 targets the supplied ModuleTwo register map **version 2**. The integration consumes the separate **`mygrid-modbus==0.1.0`** library. Integration tests use Home Assistant 2026.10.2 and its pymodbus 3.13.1 pin. Physical battery validation is pending; use the [acceptance checklist](docs/hardware-testing.md).
+Requires **Home Assistant 2026.10.2 or newer** (Python 3.14.2+). Version 0.1.0 targets the supplied ModuleTwo register map **version 2**. The integration consumes the separate **`mygrid-modbus==0.1.0`** library. The integration borrows a shared connection from Home Assistant’s Modbus integration, using `modbus-connection` and its `tmodbus` backend. Tests use Home Assistant 2026.10.2 and its exact transport dependency versions. Physical battery validation is pending; use the [acceptance checklist](docs/hardware-testing.md).
 
 This is a community custom integration, engineered against applicable Home Assistant Platinum requirements. It has **not** received an official Home Assistant quality rating. See [quality tracking](custom_components/mygrid/quality_scale.yaml).
 
@@ -80,7 +80,9 @@ The manual explicitly documents cluster-wide SOC, limits and setpoints. It does 
 
 Use the integration's **Configure** option to change polling from **5 seconds** to an integer between **2 and 300 seconds**. One function-03 request reads all 18 registers per poll. Explicit commands add fresh-limit and readback requests. Configuration changes reload the connection without writing power.
 
-Use **Reconfigure** to change the host/port while keeping the entry's device, entities and history. Reconfiguration closes the old connection before probing and restores the old settings if probing fails. Because there is no hardware identity register, aliases cannot be reliably deduplicated and replacement hardware cannot be detected. Use one address per physical endpoint; delete and recreate the entry when replacing the battery, to avoid combining histories.
+Use **Reconfigure** to change the host/port while keeping the entry's device, entities and history. Reconfiguration releases this entry’s old connection hold before probing and restores the old settings if probing fails. The manager closes a physical connection only after its last consumer releases it. Because there is no hardware identity register, aliases cannot be reliably deduplicated and replacement hardware cannot be detected. Use one address per physical endpoint; delete and recreate the entry when replacing the battery, to avoid combining histories.
+
+Home Assistant manages one Modbus connection per canonical endpoint and serializes requests across integrations. MyGrid shares this connection; setup probes use temporary holds and entry unload releases only its own hold. Restart and command failures never explicitly disconnect another consumer. This does not allow a separate test program to share the battery’s TCP connection, and it does not arbitrate multiple writers.
 
 No discovery, authentication, firmware updates, serial/RTU connection, or cloud API is provided by this protocol.
 
@@ -128,6 +130,7 @@ Fault alerts can use the Problem entity as a state trigger. Status `telemetry_st
 | Symptom | Check |
 | --- | --- |
 | Cannot connect | Correct LAN/IP/port, Home Assistant control source enabled in the app, Auto leader, no competing Modbus client |
+| Incompatible Modbus settings | Another consumer holds this endpoint with conflicting connection parameters; align those settings |
 | Unsupported map | Only map version 2 is implemented; obtain the matching firmware manual before extending it |
 | Command rejected | Multiple of 100 W, within **fresh** charge/discharge limits; negative for discharge |
 | Power changes unexpectedly | Another integration, app or automation may be writing the same shared setpoint |
@@ -137,7 +140,7 @@ Fault alerts can use the Problem entity as a state trigger. Status `telemetry_st
 
 Download diagnostics from the integration menu. Diagnostics include decoded telemetry and polling options, with connection addresses and identifiers omitted. They may still reveal household energy usage. They perform no new device requests.
 
-Remove the integration under Devices & services to stop polling and close the connection. Removal does not send a zero setpoint. Remove the HACS download (or local directory) and restart Home Assistant to uninstall it. Existing recorder history follows Home Assistant's normal retention settings.
+Remove the integration under Devices & services to stop polling and release its connection hold. Home Assistant closes the physical connection when its last consumer releases it. Removal does not send a zero setpoint. Remove the HACS download (or local directory) and restart Home Assistant to uninstall it. Existing recorder history follows Home Assistant's normal retention settings.
 
 ## Development
 
@@ -166,4 +169,4 @@ uv run python scripts/validate_metadata.py
 
 For a Home Assistant Core development checkout before PyPI publication, install the sibling library in that checkout's environment with `uv pip install ../mygrid-modbus` and start Home Assistant with `hass --skip-pip-packages mygrid-modbus`. This is a developer override, not a HACS installation procedure. After publishing the library, remove this repository's `[tool.uv.sources]` override and run `uv lock --no-sources`; CI can then use the published package without the sibling checkout. Do not point the production manifest at a local directory or an unversioned Git branch.
 
-The integration suite tests Home Assistant behavior and includes one end-to-end TCP simulator test against the installed library. The library's independent suite owns protocol decoding and transport edge cases. Neither contacts or controls a real battery. See [architecture](docs/architecture.md), [hardware testing](docs/hardware-testing.md), and [release instructions](docs/releasing.md). MIT license covers the original code; the supplied vendor manual is referenced, not republished.
+The integration suite tests Home Assistant behavior and includes TCP simulator tests of shared probes, runtime operations, restart, failed setup and unloading against the installed library. The library's independent suite owns protocol decoding and transport edge cases. Neither contacts or controls a real battery. See [architecture](docs/architecture.md), [hardware testing](docs/hardware-testing.md), and [release instructions](docs/releasing.md). MIT license covers the original code; the supplied vendor manual is referenced, not republished.

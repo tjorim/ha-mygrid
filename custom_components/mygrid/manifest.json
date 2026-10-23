@@ -3,13 +3,17 @@
     "@tjorim"
   ],
   "config_flow": true,
+  "dependencies": [
+    "modbus"
+  ],
   "documentation": "https://github.com/tjorim/ha-mygrid/blob/main/README.md",
   "domain": "mygrid",
   "integration_type": "device",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/tjorim/ha-mygrid/issues",
   "loggers": [
-    "pymodbus"
+    "modbus_connection",
+    "tmodbus"
   ],
   "name": "MyGrid",
   "requirements": [
