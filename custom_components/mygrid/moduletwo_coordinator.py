@@ -23,14 +23,14 @@ from .vendor.mygrid_modbus import (
 )
 
 LOGGER = logging.getLogger(__name__)
-type MyGridConfigEntry = ConfigEntry[MyGridCoordinator]
+type ModuleTwoConfigEntry = ConfigEntry[ModuleTwoCoordinator]
 
 
-class MyGridCoordinator(DataUpdateCoordinator[UpdateReport]):
+class ModuleTwoCoordinator(DataUpdateCoordinator[UpdateReport]):
     """Publish coherent snapshots and never replay a power command."""
 
     def __init__(
-        self, hass: HomeAssistant, entry: MyGridConfigEntry, device: MyGridDevice
+        self, hass: HomeAssistant, entry: ModuleTwoConfigEntry, device: MyGridDevice
     ) -> None:
         super().__init__(
             hass,

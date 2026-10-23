@@ -1,13 +1,19 @@
-"""Generate the HACS integration from the core overlay and standalone library."""
+"""Generate the HACS integration from the core overlay and the standalone libraries."""
 
 import argparse
 import hashlib
 import json
+import re
 import subprocess
-import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+COMPONENT = Path("custom_components/mygrid")
+LIBRARIES = {
+    # distribution name -> (package directory name, default checkout beside this repo)
+    "mygrid-modbus": ("mygrid_modbus", "mygrid-modbus"),
+    "mygrid-voltbridge": ("mygrid_voltbridge", "mygrid-voltbridge"),
+}
 
 
 def revision(path: Path) -> str:
@@ -20,7 +26,19 @@ def revision(path: Path) -> str:
 def format_python(content: str, path: Path) -> str:
     """Normalize import groups after namespace adaptation, using project tools."""
     result = subprocess.run(
-        ["ruff", "check", "--select", "I", "--fix", "--stdin-filename", str(path), "-"],
+        [
+            "ruff",
+            "check",
+            "--select",
+            "I",
+            "--fix",
+            # Classify imports the same way no matter which files already exist.
+            "--config",
+            "lint.isort.known-first-party = ['custom_components', 'tests']",
+            "--stdin-filename",
+            str(path),
+            "-",
+        ],
         input=content,
         text=True,
         capture_output=True,
@@ -35,29 +53,44 @@ def format_python(content: str, path: Path) -> str:
     ).stdout
 
 
-def expected(core: Path, library: Path) -> dict[Path, bytes]:
-    """Adapt namespaces only; the device model is copied byte for byte."""
+def adapt_imports(content: str, prefix: str) -> str:
+    """Point absolute library imports at the vendored copies."""
+    for _, (package, _) in LIBRARIES.items():
+        content = content.replace(
+            f"from {package} import", f"from {prefix}.vendor.{package} import"
+        )
+    return content
+
+
+def required_versions(manifest: dict[str, object]) -> dict[str, str]:
+    """Read the pinned library versions from the core manifest's requirements."""
+    pins = {}
+    for requirement in manifest["requirements"]:  # type: ignore[attr-defined]
+        match = re.fullmatch(r"([a-z-]+)==([0-9][^\s]*)", str(requirement))
+        assert match, f"Unpinned requirement: {requirement}"
+        pins[match.group(1)] = match.group(2)
+    assert set(pins) == set(LIBRARIES), (
+        "Core requirements differ from vendored libraries"
+    )
+    return pins
+
+
+def expected(core: Path, libraries: dict[str, Path]) -> dict[Path, bytes]:
+    """Adapt namespaces only; the device libraries are copied byte for byte."""
     files: dict[Path, bytes] = {}
-    library_version = tomllib.loads((library / "pyproject.toml").read_text())[
-        "project"
-    ]["version"]
-    integration_version = tomllib.loads((ROOT / "pyproject.toml").read_text())[
-        "project"
-    ]["version"]
+    integration_version = json.loads(
+        (ROOT / "custom_components/mygrid/manifest.json").read_text()
+    )["version"]
     source = core / "homeassistant/components/mygrid"
-    for path in source.iterdir():
+    pins = required_versions(json.loads((source / "manifest.json").read_text()))
+    for path in sorted(source.iterdir()):
         if path.suffix not in (".py", ".json", ".yaml"):
             continue
         content = path.read_text()
         if path.suffix == ".py":
-            content = content.replace(
-                "from mygrid_modbus import", "from .vendor.mygrid_modbus import"
-            )
+            content = adapt_imports(content, "")
         if path.name == "manifest.json":
             data = json.loads(content)
-            assert data["requirements"] == [f"mygrid-modbus=={library_version}"], (
-                "Core and library versions differ"
-            )
             data.update(
                 version=integration_version,
                 documentation="https://github.com/tjorim/ha-mygrid/blob/main/README.md",
@@ -66,35 +99,36 @@ def expected(core: Path, library: Path) -> dict[Path, bytes]:
             )
             keys = ["domain", "name", *sorted(set(data) - {"domain", "name"})]
             content = json.dumps({key: data[key] for key in keys}, indent=2) + "\n"
-        files[Path("custom_components/mygrid") / path.name] = (
-            format_python(content, Path("custom_components/mygrid") / path.name)
+        files[COMPONENT / path.name] = (
+            format_python(content, COMPONENT / path.name)
             if path.suffix == ".py"
             else content
         ).encode()
-    files[Path("custom_components/mygrid/translations/en.json")] = (
-        source / "strings.json"
-    ).read_bytes()
-    vendor = Path("custom_components/mygrid/vendor")
+    files[COMPONENT / "translations/en.json"] = (source / "strings.json").read_bytes()
+    vendor = COMPONENT / "vendor"
     files[vendor / "__init__.py"] = (
         b'"""Generated dependencies; update with scripts/sync_sources.py."""\n'
     )
-    hashes = {}
-    for path in sorted((library / "src/mygrid_modbus").iterdir()):
-        if path.suffix == ".py" or path.name == "py.typed":
-            content = path.read_bytes()
-            files[vendor / "mygrid_modbus" / path.name] = content
-            hashes[path.name] = hashlib.sha256(content).hexdigest()
-    files[vendor / "LICENSE.mygrid-modbus"] = (library / "LICENSE").read_bytes()
+    provenance_libraries = {}
+    for name, (package, _) in LIBRARIES.items():
+        library = libraries[name]
+        hashes = {}
+        for path in sorted((library / "src" / package).iterdir()):
+            if path.suffix == ".py" or path.name == "py.typed":
+                content = path.read_bytes()
+                files[vendor / package / path.name] = content
+                hashes[path.name] = hashlib.sha256(content).hexdigest()
+        files[vendor / f"LICENSE.{name}"] = (library / "LICENSE").read_bytes()
+        provenance_libraries[name] = {
+            "version": pins[name],
+            "commit": revision(library),
+            "sha256": hashes,
+        }
     provenance = {
-        "library": "mygrid-modbus",
-        "version": library_version,
-        "library_commit": revision(library),
+        "libraries": provenance_libraries,
         "core_commit": revision(core),
-        "sha256": hashes,
         "adapter_sha256": {
-            str(path.relative_to("custom_components/mygrid")): hashlib.sha256(
-                content
-            ).hexdigest()
+            str(path.relative_to(COMPONENT)): hashlib.sha256(content).hexdigest()
             for path, content in files.items()
             if path.parts[:2] == ("custom_components", "mygrid")
             and "vendor" not in path.parts
@@ -103,23 +137,26 @@ def expected(core: Path, library: Path) -> dict[Path, bytes]:
     files[vendor / "origin.json"] = (
         json.dumps(provenance, indent=2, sort_keys=True) + "\n"
     ).encode()
-    for path in (core / "tests/components/mygrid").glob("*.py"):
-        content = (
-            path.read_text()
-            .replace("homeassistant.components.mygrid", "custom_components.mygrid")
-            .replace(
-                "from mygrid_modbus import",
-                "from custom_components.mygrid.vendor.mygrid_modbus import",
-            )
-            .replace(
-                "from tests.common import",
-                "from pytest_homeassistant_custom_component.common import",
-            )
-            .replace(
-                "from tests.components.mygrid.simulator import",
-                "from tests.simulator import",
-            )
+    tests = core / "tests/components/mygrid"
+    for path in sorted(tests.iterdir()):
+        if path.is_dir():
+            if path.name != "fixtures":
+                continue
+            for fixture in sorted(path.iterdir()):
+                files[Path("tests") / path.name / fixture.name] = fixture.read_bytes()
+            continue
+        if path.suffix != ".py":
+            continue
+        content = adapt_imports(
+            path.read_text().replace(
+                "homeassistant.components.mygrid", "custom_components.mygrid"
+            ),
+            "custom_components.mygrid",
         )
+        content = content.replace(
+            "from tests.common import",
+            "from pytest_homeassistant_custom_component.common import",
+        ).replace("tests.components.mygrid.", "tests.")
         if path.name == "conftest.py":
             content += '\n\n@pytest.fixture(autouse=True)\ndef custom_integrations(enable_custom_integrations):\n    """Enable the generated custom integration in the test runtime."""\n'
         files[Path("tests") / path.name] = format_python(
@@ -132,24 +169,33 @@ def main() -> None:
     """Write sources, or verify that none have drifted from their originals."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--core", type=Path, default=ROOT.parent / "ha-mygrid-core")
-    parser.add_argument("--library", type=Path, default=ROOT.parent / "mygrid-modbus")
+    for name, (_, directory) in LIBRARIES.items():
+        parser.add_argument(
+            f"--{directory}", type=Path, default=ROOT.parent / directory, dest=name
+        )
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
-    files = expected(args.core, args.library)
+    files = expected(args.core, {name: getattr(args, name) for name in LIBRARIES})
     different = [
         str(path)
         for path, data in files.items()
         if not (ROOT / path).exists() or (ROOT / path).read_bytes() != data
     ]
-    vendor_path = ROOT / "custom_components/mygrid/vendor/mygrid_modbus"
     stale = [
-        path for path in vendor_path.glob("*.py") if path.relative_to(ROOT) not in files
+        path
+        for pattern in (
+            "custom_components/mygrid/*.py",
+            "custom_components/mygrid/vendor/*/*.py",
+            "tests/*.py",
+        )
+        for path in ROOT.glob(pattern)
+        if path.relative_to(ROOT) not in files
     ]
     different.extend(str(path.relative_to(ROOT)) for path in stale)
     if args.check:
         if different:
             raise SystemExit("Generated files differ: " + ", ".join(different))
-        print("Core adapter and vendored library match their canonical sources.")
+        print("Core adapter and vendored libraries match their canonical sources.")
         return
     for path in stale:
         path.unlink()

@@ -1,6 +1,6 @@
 # Contributing
 
-Change protocol behavior in `mygrid-modbus` and integration behavior/tests in `ha-mygrid-core`, then regenerate this repository with `scripts/sync_sources.py`. The HACS source and vendored files are generated; hand edits will be overwritten.
+Change protocol behavior in `mygrid-modbus` (ModuleTwo) or `mygrid-voltbridge` (VoltBridge) and integration behavior/tests in `ha-mygrid-core`, then regenerate this repository with `scripts/sync_sources.py`. The HACS source and vendored files are generated; hand edits will be overwritten.
 
 Run the README validation commands before proposing a change. Include a redacted raw-register dump and firmware/map version for decoding issues. Never publish the battery's local address or entry identifiers. The simulator can verify most changes without hardware; clearly distinguish simulation from physical acceptance results.
 

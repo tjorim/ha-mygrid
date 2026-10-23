@@ -1,6 +1,6 @@
 # Community-testing releases
 
-The HACS package is self-contained: its device library is vendored from the canonical standalone package. A PyPI release is not required for community testing. Publication of this repository on GitHub is still needed for HACS custom-repository downloads; the manual-install ZIP can be used locally now.
+The HACS package is self-contained: its device libraries are vendored from the canonical standalone package. A PyPI release is not required for community testing. Publication of this repository on GitHub is still needed for HACS custom-repository downloads; the manual-install ZIP can be used locally now.
 
 1. Commit the reviewed library and core-overlay changes. Regenerate with `scripts/sync_sources.py`, verify `--check`, inspect the source commit/hash provenance, and run the local validation commands from README.
 2. Record the hardware checklist results; do not mark a release physically verified until those results exist. Confirm ongoing ownership and obtain manufacturer-approved brand artwork. Remove the explicit HACS `brands` exemption once artwork is included.

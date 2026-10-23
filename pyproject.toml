@@ -1,7 +1,7 @@
 [project]
 name = "ha-mygrid"
 version = "0.1.0"
-description = "Local MyGrid ModuleTwo Modbus TCP integration for Home Assistant"
+description = "Local MyGrid ModuleTwo and VoltBridge integration for Home Assistant"
 requires-python = ">=3.14.2"
 license = "MIT"
 dependencies = []
