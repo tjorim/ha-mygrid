@@ -11,6 +11,7 @@ COMPONENT = ROOT / "custom_components/mygrid_modbus"
 
 
 def main() -> None:
+    """Validate the package metadata, vendoring provenance and import boundaries."""
     manifest = json.loads((COMPONENT / "manifest.json").read_text())
     project = tomllib.loads((ROOT / "pyproject.toml").read_text())
     assert list(manifest) == [
@@ -22,7 +23,8 @@ def main() -> None:
     assert manifest["version"] == project["project"]["version"] == "0.1.0"
     assert manifest["requirements"] == project["project"]["dependencies"] == []
     assert manifest["dependencies"] == ["modbus"]
-    assert manifest["config_flow"] and manifest["iot_class"] == "local_polling"
+    assert manifest["config_flow"]
+    assert manifest["iot_class"] == "local_polling"
     assert "quality_scale" not in manifest
     assert json.loads((COMPONENT / "strings.json").read_text()) == json.loads(
         (COMPONENT / "translations/en.json").read_text()
