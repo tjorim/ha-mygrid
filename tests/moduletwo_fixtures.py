@@ -7,8 +7,8 @@ import pytest
 from modbus_connection.model import UpdateReport
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.mygrid_moduletwo.const import DOMAIN
-from custom_components.mygrid_moduletwo.vendor.mygrid_modbus import (
+from custom_components.mygrid_modbus.const import DOMAIN
+from custom_components.mygrid_modbus.vendor.mygrid_modbus import (
     BatteryData,
     MyGridDevice,
 )
@@ -37,11 +37,11 @@ def mock_client(registers: list[int]) -> Generator[AsyncMock]:
     device.async_set_power.side_effect = confirm
     with (
         patch(
-            "custom_components.mygrid_moduletwo.moduletwo_setup.MyGridDevice",
+            "custom_components.mygrid_modbus.moduletwo_setup.MyGridDevice",
             return_value=device,
         ),
         patch(
-            "custom_components.mygrid_moduletwo.moduletwo_config_flow.MyGridDevice",
+            "custom_components.mygrid_modbus.moduletwo_config_flow.MyGridDevice",
             return_value=device,
         ),
     ):

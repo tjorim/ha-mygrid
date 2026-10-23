@@ -4,7 +4,7 @@ Local monitoring and explicit power control for **MyGrid ModuleTwo** batteries o
 
 Requires **Home Assistant 2026.10.2 or newer** (Python 3.14.2+). Version 0.1.0 targets the supplied ModuleTwo register map **version 2**. The HACS package includes a generated, licensed copy of the independent **`mygrid-modbus`** device library, so testing does not require a PyPI release. The integration borrows a shared connection from Home Assistant’s Modbus integration, using `modbus-connection` and its `tmodbus` backend. Tests use Home Assistant 2026.10.2 and its exact transport dependency versions. Physical battery validation is pending; use the [acceptance checklist](docs/hardware-testing.md).
 
-This is a community custom integration, engineered against applicable Home Assistant Platinum requirements. It has **not** received an official Home Assistant quality rating. See [quality tracking](custom_components/mygrid_moduletwo/quality_scale.yaml).
+This is a community custom integration, engineered against applicable Home Assistant Platinum requirements. It has **not** received an official Home Assistant quality rating. See [quality tracking](custom_components/mygrid_modbus/quality_scale.yaml).
 
 ## Before installation
 
@@ -20,9 +20,9 @@ The protocol has no TLS or authentication. Keep it on your trusted LAN; do not f
 
 ### Manual installation
 
-The complete package is ready for manual testing now. Build or use `dist/mygrid-moduletwo-0.1.0.zip`, extract it into the Home Assistant configuration directory, and restart. The vendored library is included and no standalone package installation is required.
+The complete package is ready for manual testing now. Build or use `dist/mygrid-modbus-0.1.0.zip`, extract it into the Home Assistant configuration directory, and restart. The vendored library is included and no standalone package installation is required.
 
-Copy the entire `custom_components/mygrid_moduletwo` directory into your Home Assistant configuration directory as `custom_components/mygrid_moduletwo`, then restart Home Assistant.
+Copy the entire `custom_components/mygrid_modbus` directory into your Home Assistant configuration directory as `custom_components/mygrid_modbus`, then restart Home Assistant.
 
 Open **Settings → Devices & services → Add integration → MyGrid ModuleTwo**. Enter:
 
@@ -150,7 +150,7 @@ This is the generated community-testing package for the ModuleTwo. HACS allows o
 | --- | --- |
 | `mygrid-modbus` | Standalone component-based ModuleTwo library, supplied mock-backend tests, query helper and PyPI release workflow |
 | `ha-mygrid-core` | Canonical umbrella integration (domain `mygrid`, ModuleTwo and VoltBridge) shaped for Home Assistant core, plus the generator for the HACS packages |
-| `ha-mygrid-moduletwo` | This HACS package: domain `mygrid_moduletwo`, generated adapter code and the byte-for-byte vendored library |
+| `ha-mygrid-modbus` | This HACS package: domain `mygrid_modbus`, generated adapter code and the byte-for-byte vendored library |
 | `ha-mygrid-voltbridge` | The matching HACS package for the VoltBridge P1 meter (domain `mygrid_voltbridge`), which is a separate integration |
 
 A checkout of this repository is self-contained for tests and installation:
@@ -165,7 +165,7 @@ uv run python scripts/validate_metadata.py
 uv run python scripts/build_release.py
 ```
 
-The vendored files are under `custom_components/mygrid_moduletwo/vendor/mygrid_modbus`. The adjacent license and `origin.json` record version, source commits and per-file SHA-256 hashes. CI verifies the hashes, tests the actual vendored namespace, and runs HACS/Hassfest validation. Manufacturer-approved brand art is still pending; HACS's brand check is explicitly exempted until it is supplied. No official quality rating is claimed.
+The vendored files are under `custom_components/mygrid_modbus/vendor/mygrid_modbus`. The adjacent license and `origin.json` record version, source commits and per-file SHA-256 hashes. CI verifies the hashes, tests the actual vendored namespace, and runs HACS/Hassfest validation. Manufacturer-approved brand art is still pending; HACS's brand check is explicitly exempted until it is supplied. No official quality rating is claimed.
 
 Do not edit the generated files here. To change device code, edit the sibling `mygrid-modbus` repository; to change integration code or tests, edit `ha-mygrid-core`. Then regenerate from `ha-mygrid-core`:
 

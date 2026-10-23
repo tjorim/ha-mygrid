@@ -7,7 +7,7 @@ import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-COMPONENT = ROOT / "custom_components/mygrid_moduletwo"
+COMPONENT = ROOT / "custom_components/mygrid_modbus"
 
 
 def main() -> None:
@@ -18,7 +18,7 @@ def main() -> None:
         "name",
         *sorted(set(manifest) - {"domain", "name"}),
     ]
-    assert manifest["domain"] == "mygrid_moduletwo"
+    assert manifest["domain"] == "mygrid_modbus"
     assert manifest["version"] == project["project"]["version"] == "0.1.0"
     assert manifest["requirements"] == project["project"]["dependencies"] == []
     assert manifest["dependencies"] == ["modbus"]

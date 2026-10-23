@@ -2,7 +2,7 @@
 
 from homeassistant.config_entries import SOURCE_USER
 
-from custom_components.mygrid_moduletwo.const import DOMAIN
+from custom_components.mygrid_modbus.const import DOMAIN
 
 
 async def start_moduletwo(hass, data=None):

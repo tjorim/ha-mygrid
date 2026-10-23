@@ -4,11 +4,11 @@
     "binary_sensor.py": "2290f703cccb2f81436338572e3a5eb59f8487ddaf87fb72116d22637ed378f1",
     "button.py": "309019c006ec6a12ad00fadb63dbd71c0c6dee65567d8d3cffd18320931a7b7b",
     "config_flow.py": "68b688a23c5ac2da3be9c6da4ff2b80a0a6320d37fa498ac157bddf1d62a30d6",
-    "const.py": "7a710415fb91ad8e023aced262cbfedf85efb6a0c06849abf1400fa3b883855b",
+    "const.py": "1e27cd4f39c12cd5fd541ad46871a2245371e3dfe8520d160961c7ffd7a7b408",
     "diagnostics.py": "1682f0cb530d4b0273a0696b6700ee5249ad063bc6016fe19acd925b19e801af",
     "helpers.py": "70e462c676cf7b66121a919d814272add7ef4b731a2f3b169e43f4736e46ab58",
     "icons.json": "7b82d0419040d0d80600f9008d7aea4ce37f5f5f6e2fc92ba90b3e64d91b41d1",
-    "manifest.json": "9bc503fa7f6b260820fda9684fd37e6ee043c64b3cdb52dca0fd8219cec717e6",
+    "manifest.json": "e1deb756886ddfb9f3fc843ac5e1bc70184efe6bee0010e6657820cd76458d1e",
     "moduletwo_binary_sensor.py": "884b6d33208c45665ad68b9e03b909bba3b7262230db1b56a9bd52528b9f85a6",
     "moduletwo_button.py": "733ba4982db9a75ccfd16e97b70788e1855e8a7da20c04deb1aa12aaedf1b943",
     "moduletwo_config_flow.py": "f4fd104e87d1fede567aa77e8984fe37b90e25dfe4841624e55ed71e7707d31c",
@@ -25,7 +25,7 @@
     "strings.json": "a92320569e8787497b264f56469dd3799553a6d6b332b3ff0cd334aa1339ff82",
     "translations/en.json": "a92320569e8787497b264f56469dd3799553a6d6b332b3ff0cd334aa1339ff82"
   },
-  "core_commit": "e403a449d9b72614387074a1491cca3230ac417e",
+  "core_commit": "583b639e4b28a400924a34d27f70c314566151fe",
   "library": "mygrid-modbus",
   "library_commit": "81e26e35a3d10762933bae146364780889d6a464",
   "sha256": {

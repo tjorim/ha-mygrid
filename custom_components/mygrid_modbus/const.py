@@ -1,6 +1,6 @@
 """Shared constants for MyGrid."""
 
-DOMAIN = "mygrid_moduletwo"
+DOMAIN = "mygrid_modbus"
 
 # One config entry per device; entries without a device type are ModuleTwo.
 CONF_DEVICE = "device"

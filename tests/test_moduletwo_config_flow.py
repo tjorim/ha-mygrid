@@ -9,9 +9,9 @@ from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.exceptions import HomeAssistantError
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.mygrid_moduletwo.const import DOMAIN
-from custom_components.mygrid_moduletwo.helpers import normalize_host
-from custom_components.mygrid_moduletwo.vendor.mygrid_modbus import (
+from custom_components.mygrid_modbus.const import DOMAIN
+from custom_components.mygrid_modbus.helpers import normalize_host
+from custom_components.mygrid_modbus.vendor.mygrid_modbus import (
     MyGridError,
     UnsupportedMapError,
 )
@@ -41,9 +41,7 @@ def test_invalid_host(host):
 
 
 async def test_user(hass, mock_client):
-    with patch(
-        "custom_components.mygrid_moduletwo.async_setup_entry", return_value=True
-    ):
+    with patch("custom_components.mygrid_modbus.async_setup_entry", return_value=True):
         result = await start_moduletwo(hass)
         assert result["type"] == FlowResultType.FORM
         result = await hass.config_entries.flow.async_configure(
@@ -206,7 +204,7 @@ async def test_reconfigure_cancellation_restores(hass, entry, mock_client):
 
 async def test_probe_link_conflict(hass, mock_client):
     with patch(
-        "custom_components.mygrid_moduletwo.moduletwo_config_flow.async_get_temporary_unit",
+        "custom_components.mygrid_modbus.moduletwo_config_flow.async_get_temporary_unit",
         side_effect=HomeAssistantError("different link settings"),
     ):
         result = await start_moduletwo(hass, {"host": "battery", "port": 502})
