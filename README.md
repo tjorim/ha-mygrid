@@ -1,21 +1,12 @@
-# MyGrid for Home Assistant
+# MyGrid ModuleTwo for Home Assistant
 
-Local integration for two **MyGrid** devices. No cloud service or account is used.
+Local monitoring and explicit power control for **MyGrid ModuleTwo** batteries over Modbus TCP. No cloud service or account is used by the integration.
 
-| Device | What it provides | Connection |
-| --- | --- | --- |
-| **ModuleTwo** battery | Telemetry and explicit charge/discharge control | Modbus TCP |
-| **VoltBridge** P1 meter | Grid power, energy, voltage/current, gas and water from the digital meter | Local HTTP API and UDP push |
+Requires **Home Assistant 2026.10.2 or newer** (Python 3.14.2+). Version 0.1.0 targets the supplied ModuleTwo register map **version 2**. The HACS package includes a generated, licensed copy of the independent **`mygrid-modbus`** device library, so testing does not require a PyPI release. The integration borrows a shared connection from Home Assistant’s Modbus integration, using `modbus-connection` and its `tmodbus` backend. Tests use Home Assistant 2026.10.2 and its exact transport dependency versions. Physical battery validation is pending; use the [acceptance checklist](docs/hardware-testing.md).
 
-Add each device separately under **Settings → Devices & services → Add integration → MyGrid** and choose the device. A VoltBridge is also found automatically through mDNS and followed to a new address through DHCP.
+This is a community custom integration, engineered against applicable Home Assistant Platinum requirements. It has **not** received an official Home Assistant quality rating. See [quality tracking](custom_components/mygrid_moduletwo/quality_scale.yaml).
 
-Requires **Home Assistant 2026.10.2 or newer** (Python 3.14.2+). The HACS package includes generated, licensed copies of the independent **`mygrid-modbus`** and **`mygrid-voltbridge`** libraries, so testing does not require a PyPI release. The ModuleTwo borrows a shared connection from Home Assistant's Modbus integration, using `modbus-connection` and its `tmodbus` backend. Tests use Home Assistant 2026.10.2 and its exact transport dependency versions. Physical ModuleTwo validation is pending; use the [acceptance checklist](docs/hardware-testing.md). The VoltBridge half was verified against one single-phase meter.
-
-This is a community custom integration, engineered against applicable Home Assistant Platinum requirements. It has **not** received an official Home Assistant quality rating. See [quality tracking](custom_components/mygrid/quality_scale.yaml).
-
-# ModuleTwo battery
-
-## Before installation (ModuleTwo)
+## Before installation
 
 1. In the MyGrid app, set the battery's control source to **Home Assistant**. This option must already be configured for your battery. The MyGrid control source leaves the Modbus port closed.
 2. Put Home Assistant and the battery on the same LAN/Wi-Fi; reserve the battery's IP address in your router.
@@ -29,11 +20,11 @@ The protocol has no TLS or authentication. Keep it on your trusted LAN; do not f
 
 ### Manual installation
 
-The complete package is ready for manual testing now. Build or use `dist/mygrid-0.1.0.zip`, extract it into the Home Assistant configuration directory, and restart. The vendored library is included and no standalone package installation is required.
+The complete package is ready for manual testing now. Build or use `dist/mygrid-moduletwo-0.1.0.zip`, extract it into the Home Assistant configuration directory, and restart. The vendored library is included and no standalone package installation is required.
 
-Copy the entire `custom_components/mygrid` directory into your Home Assistant configuration directory as `custom_components/mygrid`, then restart Home Assistant.
+Copy the entire `custom_components/mygrid_moduletwo` directory into your Home Assistant configuration directory as `custom_components/mygrid_moduletwo`, then restart Home Assistant.
 
-Open **Settings → Devices & services → Add integration → MyGrid**, choose **ModuleTwo battery (Modbus TCP)** and enter:
+Open **Settings → Devices & services → Add integration → MyGrid ModuleTwo**. Enter:
 
 | Field | Meaning | Default |
 | --- | --- | --- |
@@ -44,7 +35,7 @@ Unit ID is fixed to the documented value **1**. Setup reads the device and verif
 
 ### HACS (after publishing this repository)
 
-After this integration repository is published on GitHub, in HACS open **Custom repositories**, paste this repository's GitHub URL, choose **Integration**, then download **MyGrid** and restart Home Assistant. Add MyGrid through Devices & services as above. No repository has been published by this local implementation; see [release instructions](docs/releasing.md).
+After this integration repository is published on GitHub, in HACS open **Custom repositories**, paste this repository's GitHub URL, choose **Integration**, then download **MyGrid ModuleTwo** and restart Home Assistant. Add MyGrid through Devices & services as above. No repository has been published by this local implementation; see [release instructions](docs/releasing.md).
 
 ## Entities
 
@@ -151,37 +142,16 @@ Download diagnostics from the integration menu. Diagnostics include decoded tele
 
 Remove the integration under Devices & services to stop polling and release its connection hold. Home Assistant closes the physical connection when its last consumer releases it. Removal does not send a zero setpoint. Remove the HACS download (or local directory) and restart Home Assistant to uninstall it. Existing recorder history follows Home Assistant's normal retention settings.
 
-# VoltBridge P1 meter
+## Development
 
-Connect the P1 cable and let the VoltBridge receive a telegram before adding it: entities are created from the first snapshot. The VoltBridge appears automatically in the discovered devices, or choose **VoltBridge P1 meter** and enter its host name or IP address. Each meter is identified by its P1 serial, so a new address does not create a new device (DHCP discovery, mDNS discovery and **Reconfigure** update it).
-
-| Entity | Notes |
-| --- | --- |
-| Net / import / export power | W; positive net power is import |
-| Energy imported / exported (day, night) | `total_increasing`, suitable for the Energy dashboard |
-| Voltage and current per phase | One set per phase the meter reports (L1 verified) |
-| Import / export power per phase | Disabled by default |
-| Current average demand, peak demand, peak demand time | Quarter-hour average and the month's peak (capacity tariff); the peak sensor carries the monthly history as the `history` attribute |
-| Tariff | `day` / `night` |
-| Gas, water | m³; only if those meters are connected to the meter's M-Bus |
-| Breaker | Diagnostic: open / closed / ready to reconnect |
-| Limiter and fuse threshold | Diagnostic, disabled by default, created only for real limits (999.9 kW / 999 A mean none) |
-
-Live power, voltage and current arrive by UDP broadcast about once a second. The HTTP snapshot and the raw DSMR telegram (gas, water, breaker, peak history) are polled every 30 s by default (5-600 s under **Configure**). If broadcasts do not reach Home Assistant (VLANs, containers without host networking), everything still works at the polling interval. There are no controls: the integration never writes to the VoltBridge.
-
-Known limitations: the device API is reverse-engineered and unofficial; export power/energy and phases L2/L3 are decoded by pattern, not verified against hardware; entities appear only for what the meter reports when the entry is set up, so reload the entry after connecting a gas or water meter. A repair issue appears while a reachable VoltBridge receives no P1 data (check the P1 cable); it clears itself. Open `http://<address>/` from the Home Assistant host if the device cannot be added. Diagnostics redact the host and meter serial.
-
-
-# Development
-
-This is the generated community-testing package in a multi-repository workflow:
+This is the generated community-testing package for the ModuleTwo. HACS allows one integration per repository, so each MyGrid device has its own HACS repository, both generated from the same umbrella source:
 
 | Repository | Role |
 | --- | --- |
 | `mygrid-modbus` | Standalone component-based ModuleTwo library, supplied mock-backend tests, query helper and PyPI release workflow |
-| `mygrid-voltbridge` | Standalone VoltBridge client: HTTP API, DSMR telegram parser, UDP decoder, live smoke tests |
-| `ha-mygrid-core` | Canonical core-layout umbrella integration for both devices, tests and documentation proposal |
-| `ha-mygrid` | This HACS package, generated adapter code and byte-for-byte vendored libraries |
+| `ha-mygrid-core` | Canonical umbrella integration (domain `mygrid`, ModuleTwo and VoltBridge) shaped for Home Assistant core, plus the generator for the HACS packages |
+| `ha-mygrid-moduletwo` | This HACS package: domain `mygrid_moduletwo`, generated adapter code and the byte-for-byte vendored library |
+| `ha-mygrid-voltbridge` | The matching HACS package for the VoltBridge P1 meter (domain `mygrid_voltbridge`), which is a separate integration |
 
 A checkout of this repository is self-contained for tests and installation:
 
@@ -195,16 +165,15 @@ uv run python scripts/validate_metadata.py
 uv run python scripts/build_release.py
 ```
 
-The vendored files are under `custom_components/mygrid/vendor/mygrid_modbus` and `.../mygrid_voltbridge`. The adjacent license and `origin.json` record version, source commits and per-file SHA-256 hashes. CI verifies the hashes, tests the actual vendored namespace, and runs HACS/Hassfest validation. Manufacturer-approved brand art is still pending; HACS's brand check is explicitly exempted until it is supplied. No official quality rating is claimed.
+The vendored files are under `custom_components/mygrid_moduletwo/vendor/mygrid_modbus`. The adjacent license and `origin.json` record version, source commits and per-file SHA-256 hashes. CI verifies the hashes, tests the actual vendored namespace, and runs HACS/Hassfest validation. Manufacturer-approved brand art is still pending; HACS's brand check is explicitly exempted until it is supplied. No official quality rating is claimed.
 
-To change device code, edit the sibling `mygrid-modbus` or `mygrid-voltbridge` repository. Edit integration code/tests in `ha-mygrid-core`. Then regenerate here:
+Do not edit the generated files here. To change device code, edit the sibling `mygrid-modbus` repository; to change integration code or tests, edit `ha-mygrid-core`. Then regenerate from `ha-mygrid-core`:
 
 ```sh
-uv run python scripts/sync_sources.py
-uv run python scripts/sync_sources.py --check
-uv run python scripts/validate_metadata.py
+uv run python scripts/sync_hacs.py            # writes this package and the VoltBridge one
+uv run python scripts/sync_hacs.py --check
 ```
 
-The sync tool requires all three sibling checkouts and records their Git commits. Installation, ordinary tests and metadata validation do not require either checkout or an unpublished package. The core contribution keeps its independent PyPI requirement; this generated HACS adapter imports the vendored namespace. Entries created before the `device` field existed are ModuleTwo entries, so entity IDs and the config-entry schema remain unchanged, so installing a later matching core version will require choosing one integration implementation rather than running both under the same domain.
+and run `uv run python scripts/validate_metadata.py` here. The generator needs the sibling checkouts and records their Git commits. Installation, ordinary tests and metadata validation do not need them or an unpublished package. The core contribution keeps its independent PyPI requirement and the umbrella domain `mygrid`; this package uses its own domain, so it can be installed next to the VoltBridge package, but entries do not migrate to the core integration later (add the device again there).
 
-The ModuleTwo library tests models with the supplied mock fixtures and both actual transport backends; the VoltBridge library has its own offline suite and live smoke tests. This package tests the integration wiring, shared sockets, energy-counter restoration and raw diagnostics. Neither controls real hardware. See [architecture](docs/architecture.md), [hardware testing](docs/hardware-testing.md), and [release instructions](docs/releasing.md).
+The library tests models with the supplied mock fixtures and both actual transport backends. This package tests the integration wiring, shared sockets, energy-counter restoration and raw diagnostics. Neither controls real hardware. See [architecture](docs/architecture.md), [hardware testing](docs/hardware-testing.md), and [release instructions](docs/releasing.md).

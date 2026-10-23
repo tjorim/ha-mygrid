@@ -14,11 +14,11 @@ from homeassistant.util import dt as dt_util
 from modbus_connection.model import UpdateReport
 from pytest_homeassistant_custom_component.common import async_fire_time_changed
 
-from custom_components.mygrid.const import DOMAIN
-from custom_components.mygrid.diagnostics import (
+from custom_components.mygrid_moduletwo.const import DOMAIN
+from custom_components.mygrid_moduletwo.diagnostics import (
     async_get_config_entry_diagnostics,
 )
-from custom_components.mygrid.vendor.mygrid_modbus import (
+from custom_components.mygrid_moduletwo.vendor.mygrid_modbus import (
     FAULTS,
     InvalidSetpointError,
     MyGridError,
@@ -250,7 +250,9 @@ async def test_failure_recovery_logging(hass, entry, mock_client, caplog):
     await coordinator.async_refresh()
     await hass.async_block_till_done()
     assert state(hass, entry, "state_of_charge").state == STATE_UNAVAILABLE
-    assert sum("Error fetching mygrid" in r.message for r in caplog.records) == 1
+    assert (
+        sum("Error fetching mygrid_moduletwo" in r.message for r in caplog.records) == 1
+    )
     mock_client.async_update.side_effect = None
     await coordinator.async_refresh()
     await hass.async_block_till_done()
@@ -319,7 +321,7 @@ async def test_failed_unload_keeps_connection(hass, entry, mock_client):
 async def test_setup_link_conflict(hass, entry, mock_client):
     entry.add_to_hass(hass)
     with patch(
-        "custom_components.mygrid.async_get_unit",
+        "custom_components.mygrid_moduletwo.moduletwo_setup.async_get_unit",
         side_effect=HomeAssistantError("different link settings"),
     ):
         assert not await hass.config_entries.async_setup(entry.entry_id)

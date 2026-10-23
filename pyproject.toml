@@ -1,7 +1,7 @@
 [project]
-name = "ha-mygrid"
+name = "ha-mygrid-moduletwo"
 version = "0.1.0"
-description = "Local MyGrid ModuleTwo and VoltBridge integration for Home Assistant"
+description = "Local MyGrid ModuleTwo Modbus TCP integration for Home Assistant"
 requires-python = ">=3.14.2"
 license = "MIT"
 dependencies = []
@@ -25,18 +25,18 @@ asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 pythonpath = ["."]
-addopts = "--strict-markers --cov=custom_components.mygrid --cov-report=term-missing --cov-report=xml --cov-fail-under=95"
+addopts = "--strict-markers --cov=custom_components.mygrid_moduletwo --cov-report=term-missing --cov-report=xml --cov-fail-under=95"
 filterwarnings = ["error"]
 markers = ["simulator: exercises the real TCP protocol against a local simulator"]
 
 [tool.coverage.run]
 branch = true
-omit = ["custom_components/mygrid/vendor/*"]
-source = ["custom_components.mygrid"]
+omit = ["custom_components/mygrid_moduletwo/vendor/*"]
+source = ["custom_components.mygrid_moduletwo"]
 
 [tool.ruff]
 target-version = "py314"
-extend-exclude = ["custom_components/mygrid/vendor"]
+extend-exclude = ["custom_components/mygrid_moduletwo/vendor"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "ASYNC"]
@@ -46,5 +46,5 @@ ignore = ["E501"]
 python_version = "3.14"
 strict = true
 follow_imports = "silent"
-files = ["custom_components/mygrid"]
-exclude = ["custom_components/mygrid/vendor"]
+files = ["custom_components/mygrid_moduletwo"]
+exclude = ["custom_components/mygrid_moduletwo/vendor"]

@@ -7,10 +7,10 @@ from homeassistant.components.sensor import SensorExtraStoredData
 from modbus_connection import ModbusTimeoutError
 from modbus_connection.model import UpdateReport
 
-from custom_components.mygrid.diagnostics import (
+from custom_components.mygrid_moduletwo.diagnostics import (
     async_get_config_entry_diagnostics,
 )
-from custom_components.mygrid.moduletwo_sensor import ModuleTwoTotalSensor
+from custom_components.mygrid_moduletwo.moduletwo_sensor import ModuleTwoTotalSensor
 
 from .test_moduletwo_integration import setup, state
 
@@ -58,7 +58,7 @@ async def test_restored_counter_when_link_drops_during_entity_setup(
 
 
 async def test_empty_or_failed_report_is_not_fresh(hass, entry, mock_client):
-    from custom_components.mygrid.vendor.mygrid_modbus import MyGridError
+    from custom_components.mygrid_moduletwo.vendor.mygrid_modbus import MyGridError
 
     await setup(hass, entry)
     mock_client.async_update.return_value = UpdateReport(

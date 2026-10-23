@@ -1,0 +1,42 @@
+{
+  "adapter_sha256": {
+    "__init__.py": "286edfab32ec86d7c87e18230d86264e06b96d49873eb3cf340783e8ad45fc19",
+    "binary_sensor.py": "2290f703cccb2f81436338572e3a5eb59f8487ddaf87fb72116d22637ed378f1",
+    "button.py": "309019c006ec6a12ad00fadb63dbd71c0c6dee65567d8d3cffd18320931a7b7b",
+    "config_flow.py": "68b688a23c5ac2da3be9c6da4ff2b80a0a6320d37fa498ac157bddf1d62a30d6",
+    "const.py": "7a710415fb91ad8e023aced262cbfedf85efb6a0c06849abf1400fa3b883855b",
+    "diagnostics.py": "1682f0cb530d4b0273a0696b6700ee5249ad063bc6016fe19acd925b19e801af",
+    "helpers.py": "70e462c676cf7b66121a919d814272add7ef4b731a2f3b169e43f4736e46ab58",
+    "icons.json": "7b82d0419040d0d80600f9008d7aea4ce37f5f5f6e2fc92ba90b3e64d91b41d1",
+    "manifest.json": "9bc503fa7f6b260820fda9684fd37e6ee043c64b3cdb52dca0fd8219cec717e6",
+    "moduletwo_binary_sensor.py": "884b6d33208c45665ad68b9e03b909bba3b7262230db1b56a9bd52528b9f85a6",
+    "moduletwo_button.py": "733ba4982db9a75ccfd16e97b70788e1855e8a7da20c04deb1aa12aaedf1b943",
+    "moduletwo_config_flow.py": "f4fd104e87d1fede567aa77e8984fe37b90e25dfe4841624e55ed71e7707d31c",
+    "moduletwo_coordinator.py": "846f8b779aa5e36f4e93c6a0f80e9ce82ed11f70107bdcc3aa774b50eb436628",
+    "moduletwo_diagnostics.py": "bce085a41e50948a731c9f3099fa631278093a57524d9456e5890d52e42bcc93",
+    "moduletwo_entity.py": "7eac68e3879a43065ec826873aa0af77cc119dd1b92045e807d3645d6bc8443b",
+    "moduletwo_helpers.py": "4622992a366e206829a33f9d7e47b122b845b2f4a4a8a2e19e1138e334212ffc",
+    "moduletwo_number.py": "b936cc1c410c94f2141bba988ec82c0399016998822142f535c07dc03037ffc4",
+    "moduletwo_sensor.py": "b939bffb6d4b49c92c99297b0513868979d160f4c1fc4d3d7f1c7368786bd219",
+    "moduletwo_setup.py": "938ea8ee39fadcadb1bd302ffef1ad9138cf055b142d4fdf1784593ef38561a6",
+    "number.py": "94e39b3481955b2bf03322369b2f23923a16f61b7e5c8b86bad68fe30b5c38d4",
+    "quality_scale.yaml": "42ea0d22c0285928057a2df25244755b11080f425988113d3d6cfb1c77fa078c",
+    "sensor.py": "e83bf4e314bbba2bd50cf5ea11fb6699f7ce57227f25c82f5a94122ab54cb85c",
+    "strings.json": "a92320569e8787497b264f56469dd3799553a6d6b332b3ff0cd334aa1339ff82",
+    "translations/en.json": "a92320569e8787497b264f56469dd3799553a6d6b332b3ff0cd334aa1339ff82"
+  },
+  "core_commit": "e403a449d9b72614387074a1491cca3230ac417e",
+  "library": "mygrid-modbus",
+  "library_commit": "81e26e35a3d10762933bae146364780889d6a464",
+  "sha256": {
+    "__init__.py": "92595cf6d407b50cbfedc5da5ae33900d92d1ccaa6d6c8ff7b40698bd62f5e1f",
+    "battery.py": "a9935584c554b131e608908d572e86b0d8eaae30ef9ac94574dc53ae44faf8ba",
+    "cli.py": "6b6b536927ff41f3dfdf15812faaad9a7252579768eb28d424e29bc7476f9ca2",
+    "const.py": "1b75b9583cacb5e8b71a9db87faff0c50d4c6ed092c544e5c1fad6854a898125",
+    "data.py": "91da95c8da178198fcdeef86cf2aef815b84a4dbddd518838cbceb8e39f33c7e",
+    "device.py": "efbc5242a0716abc8c9dc533b19d267dfbd6edc78d27469c1e594a7fd25bde2b",
+    "exceptions.py": "0ed965d9a81946e4741f6743475d5dbfec2a5fd5dd82edba855b5d8b9b9f39fa",
+    "py.typed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "version": "0.1.0"
+}

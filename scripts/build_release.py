@@ -8,9 +8,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main() -> None:
-    component = ROOT / "custom_components/mygrid"
+    component = ROOT / "custom_components/mygrid_moduletwo"
     version = json.loads((component / "manifest.json").read_text())["version"]
-    output = ROOT / "dist" / f"mygrid-{version}.zip"
+    output = ROOT / "dist" / f"mygrid-moduletwo-{version}.zip"
     output.parent.mkdir(exist_ok=True)
     with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for path in sorted(component.rglob("*")):
