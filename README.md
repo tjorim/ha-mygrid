@@ -148,7 +148,7 @@ This is the generated community-testing package for the ModuleTwo. HACS allows o
 
 | Repository | Role |
 | --- | --- |
-| `mygrid-modbus` | Standalone component-based ModuleTwo library, supplied mock-backend tests, query helper and PyPI release workflow |
+| `python-mygrid-modbus` | Standalone component-based ModuleTwo library (PyPI package `mygrid-modbus`), supplied mock-backend tests, query helper and PyPI release workflow |
 | `ha-mygrid-core` | Canonical umbrella integration (domain `mygrid`, ModuleTwo and VoltBridge) shaped for Home Assistant core, plus the generator for the HACS packages |
 | `ha-mygrid-modbus` | This HACS package: domain `mygrid_modbus`, generated adapter code and the byte-for-byte vendored library |
 | `ha-mygrid-voltbridge` | The matching HACS package for the VoltBridge P1 meter (domain `mygrid_voltbridge`), which is a separate integration |
@@ -167,7 +167,7 @@ uv run python scripts/build_release.py
 
 The vendored files are under `custom_components/mygrid_modbus/vendor/mygrid_modbus`. The adjacent license and `origin.json` record version, source commits and per-file SHA-256 hashes. CI verifies the hashes, tests the actual vendored namespace, and runs HACS/Hassfest validation. Manufacturer-approved brand art is still pending; HACS's brand check is explicitly exempted until it is supplied. No official quality rating is claimed.
 
-Do not edit the generated files here. To change device code, edit the sibling `mygrid-modbus` repository; to change integration code or tests, edit `ha-mygrid-core`. Then regenerate from `ha-mygrid-core`:
+Do not edit the generated files here. To change device code, edit the sibling `python-mygrid-modbus` repository; to change integration code or tests, edit `ha-mygrid-core`. Then regenerate from `ha-mygrid-core`:
 
 ```sh
 uv run python scripts/sync_hacs.py            # writes this package and the VoltBridge one
