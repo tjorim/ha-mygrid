@@ -5,13 +5,13 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from modbus_connection.model import UpdateReport
-from pytest_homeassistant_custom_component.common import MockConfigEntry
-
-from custom_components.mygrid_modbus.const import DOMAIN
-from custom_components.mygrid_modbus.vendor.mygrid_modbus import (
+from mygrid_modbus import (
     BatteryData,
     MyGridDevice,
 )
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+from custom_components.mygrid_modbus.const import DOMAIN
 
 
 @pytest.fixture

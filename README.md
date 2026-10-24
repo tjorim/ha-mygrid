@@ -2,7 +2,7 @@
 
 Local monitoring and explicit power control for **MyGrid ModuleTwo** batteries over Modbus TCP. No cloud service or account is used by the integration.
 
-Requires **Home Assistant 2026.10.2 or newer** (Python 3.14.2+). Version 0.1.0 targets the supplied ModuleTwo register map **version 2**. The HACS package includes a generated, licensed copy of the independent **`mygrid-modbus`** device library, so testing does not require a PyPI release. The integration borrows a shared connection from Home Assistant’s Modbus integration, using `modbus-connection` and its `tmodbus` backend. Tests use Home Assistant 2026.10.2 and its exact transport dependency versions. Physical battery validation is pending; use the [acceptance checklist](docs/hardware-testing.md).
+Requires **Home Assistant 2026.10.2 or newer** (Python 3.14.2+). Version 0.1.0 targets the supplied ModuleTwo register map **version 2**. The integration uses the independent **`mygrid-modbus`** device library from PyPI, which Home Assistant installs automatically. The integration borrows a shared connection from Home Assistant’s Modbus integration, using `modbus-connection` and its `tmodbus` backend. Tests use Home Assistant 2026.10.2 and its exact transport dependency versions. Physical battery validation is pending; use the [acceptance checklist](docs/hardware-testing.md).
 
 This is a community custom integration, engineered against applicable Home Assistant Platinum requirements. It has **not** received an official Home Assistant quality rating. See [quality tracking](custom_components/mygrid_modbus/quality_scale.yaml).
 
@@ -22,7 +22,7 @@ The protocol has no TLS or authentication. Keep it on your trusted LAN; do not f
 
 ### Manual installation
 
-The complete package is ready for manual testing now. Build or use `dist/mygrid-modbus-0.1.0.zip`, extract it into the Home Assistant configuration directory, and restart. The vendored library is included and no standalone package installation is required.
+The complete package is ready for manual testing now. Build or use `dist/mygrid-modbus-0.1.0.zip`, extract it into the Home Assistant configuration directory, and restart. Home Assistant installs the `mygrid-modbus` library from PyPI on first start, so the host needs network access.
 
 Copy the entire `custom_components/mygrid_modbus` directory into your Home Assistant configuration directory as `custom_components/mygrid_modbus`, then restart Home Assistant.
 
@@ -146,14 +146,14 @@ Remove the integration under Devices & services to stop polling and release its 
 
 ## Development
 
-This is the generated community-testing package for the ModuleTwo. HACS allows one integration per repository, so each MyGrid device has its own HACS repository, both generated from the same umbrella source:
+This is the community-testing integration for the ModuleTwo. HACS allows one integration per repository, so each MyGrid device has its own HACS repository. This repository is the source of truth for its integration code and tests; the device library is a separate PyPI package.
 
 | Repository | Role |
 | --- | --- |
 | `python-mygrid-modbus` | Standalone component-based ModuleTwo library (PyPI package `mygrid-modbus`), supplied mock-backend tests, query helper and PyPI release workflow |
-| `ha-mygrid-core` | Canonical umbrella integration (domain `mygrid`, ModuleTwo and VoltBridge) shaped for Home Assistant core, plus the generator for the HACS packages |
-| `ha-mygrid-modbus` | This HACS package: domain `mygrid_modbus`, generated adapter code and the byte-for-byte vendored library |
-| `ha-mygrid-voltbridge` | The matching HACS package for the VoltBridge P1 meter (domain `mygrid_voltbridge`), which is a separate integration |
+| `ha-mygrid-modbus` | This HACS integration: domain `mygrid_modbus`, depending on the PyPI library |
+| `ha-mygrid-voltbridge` | The matching HACS integration for the VoltBridge P1 meter (domain `mygrid_voltbridge`), which is a separate integration |
+| `ha-mygrid-core` | Dormant umbrella integration (domain `mygrid`) kept for a possible Home Assistant core contribution; not used or maintained for the HACS packages |
 
 A checkout of this repository is self-contained for tests and installation:
 
@@ -167,16 +167,9 @@ uv run python scripts/validate_metadata.py
 uv run python scripts/build_release.py
 ```
 
-The vendored files are under `custom_components/mygrid_modbus/vendor/mygrid_modbus`. The adjacent license and `origin.json` record version, source commits and per-file SHA-256 hashes. CI verifies the hashes, tests the actual vendored namespace, and runs HACS/Hassfest validation. Manufacturer-approved brand art is still pending; HACS's brand check is explicitly exempted until it is supplied. No official quality rating is claimed.
+CI runs ruff, mypy and the tests, validates the manifest against `pyproject.toml`, builds the manual-install ZIP, and runs HACS and hassfest validation. Manufacturer-approved brand art is still pending; HACS's brand check is explicitly exempted until it is supplied. No official quality rating is claimed.
 
-Do not edit the generated files here. To change device code, edit the sibling `python-mygrid-modbus` repository; to change integration code or tests, edit `ha-mygrid-core`. Then regenerate from `ha-mygrid-core`:
-
-```sh
-uv run python scripts/sync_hacs.py            # writes this package and the VoltBridge one
-uv run python scripts/sync_hacs.py --check
-```
-
-and run `uv run python scripts/validate_metadata.py` here. The generator needs the sibling checkouts and records their Git commits. Installation, ordinary tests and metadata validation do not need them or an unpublished package. The core contribution keeps its independent PyPI requirement and the umbrella domain `mygrid`; this package uses its own domain, so it can be installed next to the VoltBridge package, but entries do not migrate to the core integration later (add the device again there).
+Change integration code and tests here. Change device or protocol behavior in the sibling `python-mygrid-modbus` repository, publish a release to PyPI, then bump the `mygrid-modbus==` pin in `custom_components/mygrid_modbus/manifest.json` and in the `dev` dependency group of `pyproject.toml` (run `uv lock`). `scripts/validate_metadata.py` fails if the two pins differ. This integration and the core overlay use different domains, so entries do not migrate between them.
 
 The library tests models with the supplied mock fixtures and both actual transport backends. This package tests the integration wiring, shared sockets, energy-counter restoration and raw diagnostics. Neither controls real hardware. See [architecture](docs/architecture.md), [hardware testing](docs/hardware-testing.md), and [release instructions](docs/releasing.md).
 

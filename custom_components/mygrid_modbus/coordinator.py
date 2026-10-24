@@ -15,12 +15,13 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from modbus_connection import ModbusError
 from modbus_connection.model import UpdateReport
 
-from .const import CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL, DOMAIN
-from .vendor.mygrid_modbus import (
+from mygrid_modbus import (
     InvalidSetpointError,
     MyGridDevice,
     UnsupportedMapError,
 )
+
+from .const import CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL, DOMAIN
 
 LOGGER = logging.getLogger(__name__)
 type ModuleTwoConfigEntry = ConfigEntry[ModuleTwoCoordinator]

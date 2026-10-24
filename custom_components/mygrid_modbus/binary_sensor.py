@@ -8,9 +8,10 @@ from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
+from mygrid_modbus import FAULTS
+
 from .coordinator import ModuleTwoConfigEntry, ModuleTwoCoordinator
 from .entity import ModuleTwoEntity
-from .vendor.mygrid_modbus import FAULTS
 
 PARALLEL_UPDATES = 0
 

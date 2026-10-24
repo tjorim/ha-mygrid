@@ -12,17 +12,17 @@ from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 from modbus_connection.model import UpdateReport
+from mygrid_modbus import (
+    FAULTS,
+    InvalidSetpointError,
+    MyGridError,
+    UnsupportedMapError,
+)
 from pytest_homeassistant_custom_component.common import async_fire_time_changed
 
 from custom_components.mygrid_modbus.const import DOMAIN
 from custom_components.mygrid_modbus.diagnostics import (
     async_get_config_entry_diagnostics,
-)
-from custom_components.mygrid_modbus.vendor.mygrid_modbus import (
-    FAULTS,
-    InvalidSetpointError,
-    MyGridError,
-    UnsupportedMapError,
 )
 
 
