@@ -1,9 +1,6 @@
 {
   "domain": "mygrid_modbus",
   "name": "MyGrid ModuleTwo",
-  "categories": [
-    "energy.solar_batteries"
-  ],
   "codeowners": [
     "@tjorim"
   ],
