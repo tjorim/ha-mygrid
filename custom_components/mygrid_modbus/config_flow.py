@@ -12,6 +12,8 @@ from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError
 from modbus_connection import ModbusError
 
+from mygrid_modbus import UNIT_ID, MyGridDevice, UnsupportedMapError
+
 from .connection import create_modbus_params
 from .const import (
     CONF_DEVICE,
@@ -24,7 +26,6 @@ from .const import (
     MIN_POLL_INTERVAL,
 )
 from .helpers import device_type, interval_schema, normalize_host
-from .vendor.mygrid_modbus import UNIT_ID, MyGridDevice, UnsupportedMapError
 
 MODULETWO_SCHEMA = vol.Schema(
     {

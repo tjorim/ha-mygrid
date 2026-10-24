@@ -8,6 +8,7 @@ dependencies = []
 
 [dependency-groups]
 dev = [
+  "mygrid-modbus==0.1.1",
   # Match the current stable Core shared Modbus transport during integration tests.
   "modbus-connection[tmodbus]==4.12.4",
   "tmodbus==0.6.2",
@@ -34,12 +35,10 @@ markers = [
 
 [tool.coverage.run]
 branch = true
-omit = ["custom_components/mygrid_modbus/vendor/*"]
 source = ["custom_components.mygrid_modbus"]
 
 [tool.ruff]
 target-version = "py314"
-extend-exclude = ["custom_components/mygrid_modbus/vendor"]
 
 [tool.ruff.lint]
 select = ["ALL"]
@@ -91,5 +90,7 @@ keep-runtime-typing = true
 python_version = "3.14"
 strict = true
 follow_imports = "silent"
+namespace_packages = true
+explicit_package_bases = true
+mypy_path = "."
 files = ["custom_components/mygrid_modbus"]
-exclude = ["custom_components/mygrid_modbus/vendor"]

@@ -1201,6 +1201,7 @@ source = { virtual = "." }
 [package.dev-dependencies]
 dev = [
     { name = "modbus-connection", extra = ["tmodbus"] },
+    { name = "mygrid-modbus" },
     { name = "mypy" },
     { name = "pymodbus" },
     { name = "pytest-homeassistant-custom-component" },
@@ -1213,6 +1214,7 @@ dev = [
 [package.metadata.requires-dev]
 dev = [
     { name = "modbus-connection", extras = ["tmodbus"], specifier = "==4.12.4" },
+    { name = "mygrid-modbus", specifier = "==0.1.1" },
     { name = "mypy", specifier = "==2.4.0" },
     { name = "pymodbus", specifier = "==3.13.1" },
     { name = "pytest-homeassistant-custom-component", specifier = "==0.13.373" },
@@ -1814,6 +1816,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/b3/ce/2efa1f32a07adfe041d48c6d04c08b6f9db66b8512c765983172399b2855/multidict-7.1.0-cp315-cp315t-win_amd64.whl", hash = "sha256:55392202cb374dd1a1f89a8ce1586644870d9e936752059d053e576acc50bc89", size = 99671, upload-time = "2026-10-09T20:31:31.282Z" },
     { url = "https://files.pythonhosted.org/packages/a9/b3/a44c301fe13716c5f2c08afd89a481018988cde4b337b36e28a2b0fcf3a3/multidict-7.1.0-cp315-cp315t-win_arm64.whl", hash = "sha256:f979a077d1c0a9a36dd4fab0d3a36b8de7b593bf935e13df85a380395b2c11ad", size = 98893, upload-time = "2026-10-09T20:31:33.62Z" },
     { url = "https://files.pythonhosted.org/packages/d0/86/a3de309c5e28ee85b314d0e3ba0e0dea6fd361c313322a05e67be4656e1e/multidict-7.1.0-py3-none-any.whl", hash = "sha256:d9ef29cfd98e17085b4f91bba8fa1570bec6787d5c52ce653ed33a58785585d0", size = 28087, upload-time = "2026-10-09T20:31:35.945Z" },
+]
+
+[[package]]
+name = "mygrid-modbus"
+version = "0.1.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "modbus-connection" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3e/a8/6325add53aa0a91a2e61a4ae144b45060c1ac8d210286e66c358694eef13/mygrid_modbus-0.1.1.tar.gz", hash = "sha256:6d712fa0bee4b584bc39498c7e701b03ae44b96f67fd3a1adf7760a16453087a", size = 72681, upload-time = "2026-10-24T00:30:32.538Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/96/94/cb99652870ea3249327e15e647f1974f0966b1f8f1ee6580b5ea3bc583fa/mygrid_modbus-0.1.1-py3-none-any.whl", hash = "sha256:373816357077c363b40cc21bd0e55d724ca54d566cd6cef40ad022c2d41f1e0e", size = 14832, upload-time = "2026-10-24T00:30:31.329Z" },
 ]
 
 [[package]]

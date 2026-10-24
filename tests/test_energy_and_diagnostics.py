@@ -58,7 +58,7 @@ async def test_restored_counter_when_link_drops_during_entity_setup(
 
 
 async def test_empty_or_failed_report_is_not_fresh(hass, entry, mock_client):
-    from custom_components.mygrid_modbus.vendor.mygrid_modbus import MyGridError
+    from mygrid_modbus import MyGridError
 
     await setup(hass, entry)
     mock_client.async_update.return_value = UpdateReport(

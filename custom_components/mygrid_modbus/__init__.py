@@ -6,11 +6,12 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryError, HomeAssistantError
 from homeassistant.helpers import config_validation as cv
 
+from mygrid_modbus import UNIT_ID, MyGridDevice
+
 from .connection import create_modbus_params
 from .const import DOMAIN
 from .coordinator import ModuleTwoConfigEntry, ModuleTwoCoordinator
 from .helpers import async_reload_entry
-from .vendor.mygrid_modbus import UNIT_ID, MyGridDevice
 
 MODULETWO_PLATFORMS = [
     Platform.SENSOR,

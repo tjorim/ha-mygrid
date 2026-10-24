@@ -1,7 +1,6 @@
-"""Validate the standalone HACS package and its generated library provenance."""
+"""Validate the HACS package metadata and its dependency pins."""
 
 import ast
-import hashlib
 import json
 import tomllib
 from pathlib import Path
@@ -11,7 +10,7 @@ COMPONENT = ROOT / "custom_components/mygrid_modbus"
 
 
 def main() -> None:
-    """Validate the package metadata, vendoring provenance and import boundaries."""
+    """Validate the package metadata, library pin and import boundaries."""
     manifest = json.loads((COMPONENT / "manifest.json").read_text())
     project = tomllib.loads((ROOT / "pyproject.toml").read_text())
     assert list(manifest) == [
@@ -21,7 +20,8 @@ def main() -> None:
     ]
     assert manifest["domain"] == "mygrid_modbus"
     assert manifest["version"] == project["project"]["version"] == "0.1.0"
-    assert manifest["requirements"] == project["project"]["dependencies"] == []
+    assert manifest["requirements"] == ["mygrid-modbus==0.1.1"]
+    assert manifest["requirements"][0] in project["dependency-groups"]["dev"]
     assert manifest["dependencies"] == ["modbus"]
     assert manifest["config_flow"]
     assert manifest["iot_class"] == "local_polling"
@@ -29,31 +29,6 @@ def main() -> None:
     assert json.loads((COMPONENT / "strings.json").read_text()) == json.loads(
         (COMPONENT / "translations/en.json").read_text()
     )
-    vendor = COMPONENT / "vendor"
-    origin = json.loads((vendor / "origin.json").read_text())
-    assert origin["version"] == "0.1.1"
-    actual = {
-        path.name: hashlib.sha256(path.read_bytes()).hexdigest()
-        for path in (vendor / "mygrid_modbus").iterdir()
-        if path.suffix == ".py" or path.name == "py.typed"
-    }
-    assert actual == origin["sha256"], (
-        "Vendored library differs from recorded source hashes"
-    )
-    adapter_files = (
-        list(COMPONENT.glob("*.py"))
-        + list(COMPONENT.glob("*.json"))
-        + list(COMPONENT.glob("*.yaml"))
-        + [COMPONENT / "translations/en.json"]
-    )
-    adapter = {
-        str(path.relative_to(COMPONENT)): hashlib.sha256(path.read_bytes()).hexdigest()
-        for path in adapter_files
-    }
-    assert adapter == origin["adapter_sha256"], (
-        "Generated adapter differs from canonical-source hashes"
-    )
-    assert (vendor / "LICENSE.mygrid-modbus").exists()
     for path in COMPONENT.glob("*.py"):
         for node in ast.walk(ast.parse(path.read_text())):
             if isinstance(node, ast.ImportFrom):
@@ -62,14 +37,11 @@ def main() -> None:
                     (
                         "pymodbus",
                         "tmodbus",
-                        "mygrid_modbus",
                         "modbus_connection.tmodbus",
                         "modbus_connection.pymodbus",
                     )
                 ), path
-    print(
-        "HACS metadata, offline vendoring provenance, and namespace boundaries validated."
-    )
+    print("HACS metadata, library pin, and transport import boundaries validated.")
 
 
 if __name__ == "__main__":

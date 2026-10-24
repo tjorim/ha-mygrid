@@ -15,9 +15,10 @@ from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfEnergy, UnitOf
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
+from mygrid_modbus import BatteryData
+
 from .coordinator import ModuleTwoConfigEntry, ModuleTwoCoordinator
 from .entity import ModuleTwoEntity
-from .vendor.mygrid_modbus import BatteryData
 
 PARALLEL_UPDATES = 0
 
