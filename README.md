@@ -1,5 +1,10 @@
 # MyGrid ModuleTwo for Home Assistant
 
+## Documentation
+
+See the [MyGrid documentation hub](https://github.com/tjorim/custom-mygrid#readme)
+for device setup guides, protocol references and repository links.
+
 Local monitoring and explicit power control for **MyGrid ModuleTwo** batteries over Modbus TCP. No cloud service or account is used by the integration.
 
 Requires **Home Assistant 2026.10.2 or newer** (Python 3.14.2+). Version 0.1.0 targets the supplied ModuleTwo register map **version 2**. The integration uses the independent **`mygrid-modbus`** device library from PyPI, which Home Assistant installs automatically. The integration borrows a shared connection from Home Assistant’s Modbus integration, using `modbus-connection` and its `tmodbus` backend. Tests use Home Assistant 2026.10.2 and its exact transport dependency versions. Physical battery validation is pending; use the [acceptance checklist](docs/hardware-testing.md).
