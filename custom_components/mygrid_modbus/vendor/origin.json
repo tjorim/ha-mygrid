@@ -13,12 +13,12 @@
     "icons.json": "7b82d0419040d0d80600f9008d7aea4ce37f5f5f6e2fc92ba90b3e64d91b41d1",
     "manifest.json": "e1deb756886ddfb9f3fc843ac5e1bc70184efe6bee0010e6657820cd76458d1e",
     "number.py": "53844d42e646f68326c286e7c22bdb08d47ae54daafceb19e77db8fe5fbaa1cc",
-    "quality_scale.yaml": "896d3800a46fe73388605b40c540e55c0377f4da3191ec97f7a6e8ef31422b90",
+    "quality_scale.yaml": "a20faea64cc3a1b5c3851acfa7ec0aa23f30e3b8b2859da20f1c4661003e3d55",
     "sensor.py": "abe844def947b1fbf55a694977a0fb50439b37ac0a8ab979d30c98e0a75cc0ff",
     "strings.json": "a92320569e8787497b264f56469dd3799553a6d6b332b3ff0cd334aa1339ff82",
     "translations/en.json": "a92320569e8787497b264f56469dd3799553a6d6b332b3ff0cd334aa1339ff82"
   },
-  "core_commit": "07113b70be90fae031bb272a65359dd482018d5d",
+  "core_commit": "82636d25e513d53c5386ffb9514abd16fe2a7640",
   "library": "mygrid-modbus",
   "library_commit": "1e259b4186f842dd0348f375281a37c9d22ab92e",
   "sha256": {
