@@ -21,6 +21,7 @@
       }
     },
     "error": {
+      "invalid_host": "Enter a hostname or IP address, without a scheme, port or path.",
       "cannot_connect": "Cannot read the battery. Check the address, Home Assistant control source, cluster leader, and whether another client is connected.",
       "unsupported_map": "This battery uses an unsupported Modbus register map. Only map version 2 is supported.",
       "cannot_unload": "Could not unload the current connection. Try again after other integration tasks finish.",
