@@ -8,6 +8,8 @@ This is a community custom integration, engineered against applicable Home Assis
 
 ## Before installation
 
+> **Known issue: the port can stay closed after following MyGrid's guide.** MyGrid's Modbus manual (published on [moduletwo.mygrid.energy](https://moduletwo.mygrid.energy/nl)) says that setting the control source to Home Assistant in the MyGrid app opens Modbus TCP on port 502. On the unit used to develop this integration (as of 2026-10-24) the control source was set that way and port 502 still refused connections. MyGrid support replied that Modbus should be allowed by default and that they would ask their IT team to enable it. If setup fails with "cannot connect" even though the app setting is correct, **contact MyGrid support** with your battery's hostname and MAC address and ask them to enable Modbus TCP. The integration cannot work around a closed port.
+
 1. In the MyGrid app, set the battery's control source to **Home Assistant**. This option must already be configured for your battery. The MyGrid control source leaves the Modbus port closed.
 2. Put Home Assistant and the battery on the same LAN/Wi-Fi; reserve the battery's IP address in your router.
 3. For a cluster, use the **Auto leader**, never a Follow unit. Setpoints and live limits on the leader represent household totals.
@@ -129,7 +131,7 @@ Fault alerts can use the Problem entity as a state trigger. Status `telemetry_st
 
 | Symptom | Check |
 | --- | --- |
-| Cannot connect | Correct LAN/IP/port, Home Assistant control source enabled in the app, Auto leader, no competing Modbus client |
+| Cannot connect | Correct LAN/IP/port, Home Assistant control source enabled in the app, Auto leader, no competing Modbus client. If all of these are right and port 502 still refuses connections, Modbus is probably not enabled on your battery: contact MyGrid support (see the known issue above) |
 | Incompatible Modbus settings | Another consumer holds this endpoint with conflicting connection parameters; align those settings |
 | Unsupported map | Only map version 2 is implemented; obtain the matching firmware manual before extending it |
 | Command rejected | Multiple of 100 W, within **fresh** charge/discharge limits; negative for discharge |

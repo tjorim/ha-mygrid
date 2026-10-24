@@ -18,9 +18,9 @@
     "strings.json": "a92320569e8787497b264f56469dd3799553a6d6b332b3ff0cd334aa1339ff82",
     "translations/en.json": "a92320569e8787497b264f56469dd3799553a6d6b332b3ff0cd334aa1339ff82"
   },
-  "core_commit": "2a825edb306ef7f1f491e8047ee63af773bfd601",
+  "core_commit": "38ec6478c64ba92345dc2b2d2aecf93aeb80e5b8",
   "library": "mygrid-modbus",
-  "library_commit": "db3224abc22c6fc86a10247d42c28d62f3dafd0a",
+  "library_commit": "7f06e172ef32652e42a0f377f58e773eeacac4a7",
   "sha256": {
     "__init__.py": "92595cf6d407b50cbfedc5da5ae33900d92d1ccaa6d6c8ff7b40698bd62f5e1f",
     "battery.py": "a9935584c554b131e608908d572e86b0d8eaae30ef9ac94574dc53ae44faf8ba",
