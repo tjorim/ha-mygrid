@@ -31,7 +31,7 @@ def main() -> None:
     )
     vendor = COMPONENT / "vendor"
     origin = json.loads((vendor / "origin.json").read_text())
-    assert origin["version"] == "0.1.0"
+    assert origin["version"] == "0.1.1"
     actual = {
         path.name: hashlib.sha256(path.read_bytes()).hexdigest()
         for path in (vendor / "mygrid_modbus").iterdir()

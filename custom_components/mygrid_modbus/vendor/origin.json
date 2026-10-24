@@ -13,12 +13,12 @@
     "icons.json": "7b82d0419040d0d80600f9008d7aea4ce37f5f5f6e2fc92ba90b3e64d91b41d1",
     "manifest.json": "e1deb756886ddfb9f3fc843ac5e1bc70184efe6bee0010e6657820cd76458d1e",
     "number.py": "53844d42e646f68326c286e7c22bdb08d47ae54daafceb19e77db8fe5fbaa1cc",
-    "quality_scale.yaml": "a20faea64cc3a1b5c3851acfa7ec0aa23f30e3b8b2859da20f1c4661003e3d55",
+    "quality_scale.yaml": "fa3326fc57f0c1e5aedf013f90389e033700c0f37c5d6f0be081d06d6ce77927",
     "sensor.py": "abe844def947b1fbf55a694977a0fb50439b37ac0a8ab979d30c98e0a75cc0ff",
     "strings.json": "a92320569e8787497b264f56469dd3799553a6d6b332b3ff0cd334aa1339ff82",
     "translations/en.json": "a92320569e8787497b264f56469dd3799553a6d6b332b3ff0cd334aa1339ff82"
   },
-  "core_commit": "7c967c8ec9b68e30b2f350a5bec6624481de8b40",
+  "core_commit": "2a825edb306ef7f1f491e8047ee63af773bfd601",
   "library": "mygrid-modbus",
   "library_commit": "db3224abc22c6fc86a10247d42c28d62f3dafd0a",
   "sha256": {
@@ -31,5 +31,5 @@
     "exceptions.py": "0ed965d9a81946e4741f6743475d5dbfec2a5fd5dd82edba855b5d8b9b9f39fa",
     "py.typed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
