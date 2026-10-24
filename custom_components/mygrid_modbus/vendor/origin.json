@@ -8,7 +8,7 @@
     "diagnostics.py": "1682f0cb530d4b0273a0696b6700ee5249ad063bc6016fe19acd925b19e801af",
     "helpers.py": "2a82ba0acb8f256f62ccc4dc37f6b78d5801a8c73f91ecae40e8d4dd55a0ed61",
     "icons.json": "7b82d0419040d0d80600f9008d7aea4ce37f5f5f6e2fc92ba90b3e64d91b41d1",
-    "manifest.json": "e1deb756886ddfb9f3fc843ac5e1bc70184efe6bee0010e6657820cd76458d1e",
+    "manifest.json": "78429b76c4a689d745145991398296a050d459384df0110709d71ca9c498f9cd",
     "moduletwo_binary_sensor.py": "81022db5a6501755def3ba983cda0cddc4ee9c7d2c8c93a51d989b41b8b41332",
     "moduletwo_button.py": "733ba4982db9a75ccfd16e97b70788e1855e8a7da20c04deb1aa12aaedf1b943",
     "moduletwo_config_flow.py": "f4fd104e87d1fede567aa77e8984fe37b90e25dfe4841624e55ed71e7707d31c",
@@ -25,7 +25,7 @@
     "strings.json": "a92320569e8787497b264f56469dd3799553a6d6b332b3ff0cd334aa1339ff82",
     "translations/en.json": "a92320569e8787497b264f56469dd3799553a6d6b332b3ff0cd334aa1339ff82"
   },
-  "core_commit": "a1df4ad754be87d3bae8497a95c69357e26a8300",
+  "core_commit": "effe0c0172399991855dca9cf8a166bf65dd9917",
   "library": "mygrid-modbus",
   "library_commit": "1e259b4186f842dd0348f375281a37c9d22ab92e",
   "sha256": {
