@@ -210,3 +210,30 @@ async def test_probe_link_conflict(hass, mock_client):
         result = await start_moduletwo(hass, {"host": "battery", "port": 502})
     assert result["errors"] == {"base": "link_settings_in_use"}
     mock_client.async_read.assert_not_called()
+
+
+def test_form_schema_is_serializable():
+    import probatio
+
+    from custom_components.mygrid_modbus.config_flow import MODULETWO_SCHEMA
+
+    fields = probatio.to_field_list(MODULETWO_SCHEMA)
+    assert [field["name"] for field in fields] == ["host", "port"]
+
+
+async def test_invalid_host_shows_form_error(hass, mock_client):
+    result = await start_moduletwo(hass, {"host": "https://battery", "port": 502})
+    assert result["type"] == FlowResultType.FORM
+    assert result["errors"] == {"host": "invalid_host"}
+    mock_client.async_read.assert_not_called()
+
+
+async def test_reconfigure_invalid_host(hass, entry, mock_client):
+    entry.add_to_hass(hass)
+    result = await start_reconfigure(hass, entry)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"host": "battery:502", "port": 502}
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["errors"] == {"host": "invalid_host"}
+    mock_client.async_read.assert_not_called()

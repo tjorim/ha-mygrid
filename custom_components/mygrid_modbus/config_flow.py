@@ -27,14 +27,22 @@ from .const import (
 )
 from .helpers import device_type, interval_schema, normalize_host
 
+# The form schema must stay serializable for the frontend, so the host is only
+# normalized (and rejected when malformed) by `_parse` after submission.
 MODULETWO_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_HOST): normalize_host,
+        vol.Required(CONF_HOST): str,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): vol.All(
             vol.Coerce(int), vol.Range(min=1, max=65535)
         ),
     }
 )
+
+
+def _parse(user_input: Mapping[str, Any]) -> dict[str, Any]:
+    """Validate submitted connection settings and normalize the host."""
+    data = MODULETWO_SCHEMA(user_input)
+    return {**data, CONF_HOST: normalize_host(data[CONF_HOST])}
 
 
 class ModuleTwoFlow(ConfigFlow):
@@ -69,7 +77,11 @@ class ModuleTwoFlow(ConfigFlow):
         """Validate the map and keep a persistent identity independent of IP."""
         errors: dict[str, str] = {}
         if user_input is not None:
-            data = MODULETWO_SCHEMA(user_input)
+            try:
+                data = _parse(user_input)
+            except vol.Invalid:
+                errors[CONF_HOST] = "invalid_host"
+        if user_input is not None and not errors:
             if self._duplicate(data):
                 return self.async_abort(reason="already_configured")
             if error := await self._validate(data):
@@ -94,7 +106,11 @@ class ModuleTwoFlow(ConfigFlow):
         entry = self._get_reconfigure_entry()
         errors: dict[str, str] = {}
         if user_input is not None:
-            data = MODULETWO_SCHEMA(user_input)
+            try:
+                data = _parse(user_input)
+            except vol.Invalid:
+                errors[CONF_HOST] = "invalid_host"
+        if user_input is not None and not errors:
             if self._duplicate(data, entry.entry_id):
                 return self.async_abort(reason="already_configured")
             if all(entry.data.get(key) == value for key, value in data.items()):
