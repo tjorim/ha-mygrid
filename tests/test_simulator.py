@@ -8,7 +8,7 @@ from homeassistant.data_entry_flow import FlowResultType
 from modbus_connection import ModbusTcpParams
 
 from tests.flows import start_moduletwo
-from tests.moduletwo_simulator import BatterySimulator
+from tests.simulator import BatterySimulator
 
 pytestmark = [pytest.mark.simulator, pytest.mark.usefixtures("socket_enabled")]
 

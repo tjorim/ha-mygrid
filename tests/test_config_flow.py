@@ -204,7 +204,7 @@ async def test_reconfigure_cancellation_restores(hass, entry, mock_client):
 
 async def test_probe_link_conflict(hass, mock_client):
     with patch(
-        "custom_components.mygrid_modbus.moduletwo_config_flow.async_get_temporary_unit",
+        "custom_components.mygrid_modbus.config_flow.async_get_temporary_unit",
         side_effect=HomeAssistantError("different link settings"),
     ):
         result = await start_moduletwo(hass, {"host": "battery", "port": 502})

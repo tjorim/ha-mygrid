@@ -10,9 +10,9 @@ from modbus_connection.model import UpdateReport
 from custom_components.mygrid_modbus.diagnostics import (
     async_get_config_entry_diagnostics,
 )
-from custom_components.mygrid_modbus.moduletwo_sensor import ModuleTwoTotalSensor
+from custom_components.mygrid_modbus.sensor import ModuleTwoTotalSensor
 
-from .test_moduletwo_integration import setup, state
+from .test_integration import setup, state
 
 
 async def test_counters_hold_during_outage_and_accept_real_reset(

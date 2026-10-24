@@ -4,7 +4,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
-from .moduletwo_coordinator import ModuleTwoCoordinator
+from .coordinator import ModuleTwoCoordinator
 
 
 class ModuleTwoEntity(CoordinatorEntity[ModuleTwoCoordinator]):
